@@ -4,6 +4,8 @@ import com.dentagenda.model.Cita;
 import com.dentagenda.model.EstadoCita;
 import com.dentagenda.model.Paciente;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,4 +19,6 @@ public interface CitaRepository extends JpaRepository<Cita, Long> {
     boolean existsByFechaHoraAndOdontologo(LocalDateTime fechaHora, String odontologo);
 
     List<Cita> findByEstado(EstadoCita estado);
+
+    Page<Cita> findByOdontologoContainingIgnoreCase(String odontologo, Pageable pageable);
 }

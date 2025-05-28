@@ -11,9 +11,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @RestController
 @RequestMapping("/api/citas")
@@ -52,5 +55,15 @@ public class CitaController {
     @GetMapping("/estado")
     public ResponseEntity<List<Cita>> obtenerCitasPorEstado(@RequestParam("estado") EstadoCita estado) {
         return ResponseEntity.ok(citaService.buscarCitasPorEstado(estado));
+    }
+
+    @GetMapping("/buscar-por-odontologo")
+    public ResponseEntity<Page<Cita>> obtenerCitasPorOdontologo(
+            @RequestParam("nombre") String nombre,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        return ResponseEntity.ok(citaService.buscarCitasPorOdontologo(nombre, pageable));
     }
 }

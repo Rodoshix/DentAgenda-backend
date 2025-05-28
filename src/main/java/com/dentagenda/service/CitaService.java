@@ -7,6 +7,8 @@ import com.dentagenda.dto.AgendarCitaDTO;
 import com.dentagenda.dto.ReprogramarCitaDTO;
 import com.dentagenda.model.Cita;
 import com.dentagenda.model.EstadoCita;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface CitaService {
     Cita agendarCita(AgendarCitaDTO dto);
@@ -15,4 +17,5 @@ public interface CitaService {
     List<Cita> obtenerCitasPorPaciente(Long pacienteId);
     List<Cita> buscarCitasPorFecha(LocalDateTime desde, LocalDateTime hasta);
     List<Cita> buscarCitasPorEstado(EstadoCita estado);
+    Page<Cita> buscarCitasPorOdontologo(String odontologo, Pageable pageable);
 }

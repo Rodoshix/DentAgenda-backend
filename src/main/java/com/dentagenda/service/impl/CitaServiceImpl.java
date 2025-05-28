@@ -11,6 +11,9 @@ import com.dentagenda.service.CitaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -96,5 +99,10 @@ public class CitaServiceImpl implements CitaService {
     @Override
     public List<Cita> buscarCitasPorEstado(EstadoCita estado) {
         return citaRepository.findByEstado(estado);
+    }
+
+    @Override
+    public Page<Cita> buscarCitasPorOdontologo(String odontologo, Pageable pageable) {
+        return citaRepository.findByOdontologoContainingIgnoreCase(odontologo, pageable);
     }
 }
