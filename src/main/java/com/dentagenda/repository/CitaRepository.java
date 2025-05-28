@@ -1,6 +1,7 @@
 package com.dentagenda.repository;
 
 import com.dentagenda.model.Cita;
+import com.dentagenda.model.EstadoCita;
 import com.dentagenda.model.Paciente;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -14,4 +15,6 @@ public interface CitaRepository extends JpaRepository<Cita, Long> {
     List<Cita> findByFechaHoraBetween(LocalDateTime inicio, LocalDateTime fin);
 
     boolean existsByFechaHoraAndOdontologo(LocalDateTime fechaHora, String odontologo);
+
+    List<Cita> findByEstado(EstadoCita estado);
 }

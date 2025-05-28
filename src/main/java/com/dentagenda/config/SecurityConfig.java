@@ -20,6 +20,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/citas/agendar").permitAll()            // habilita agendar 
                 .requestMatchers("/api/citas/*/cancelar").permitAll()         // habilita cancelar citas
                 .requestMatchers("/api/citas/*/reprogramar").permitAll()      // habilita reprogramar citas
+                .requestMatchers("/api/citas/paciente/*").permitAll()         // habilita obtener citas por paciente
+                .requestMatchers("/api/citas/fecha").permitAll()              // habilita obtener citas por fecha
+                .requestMatchers("/api/citas/estado").permitAll()             // habilita obtener citas por estado
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

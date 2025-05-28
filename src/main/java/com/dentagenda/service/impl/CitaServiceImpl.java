@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class CitaServiceImpl implements CitaService {
@@ -77,5 +78,23 @@ public class CitaServiceImpl implements CitaService {
 
         cita.setFechaHora(dto.getNuevaFechaHora());
         return citaRepository.save(cita);
+    }
+
+    @Override
+    public List<Cita> obtenerCitasPorPaciente(Long pacienteId) {
+        Paciente paciente = pacienteRepository.findById(pacienteId)
+                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+
+        return citaRepository.findByPaciente(paciente);
+    }
+
+    @Override
+    public List<Cita> buscarCitasPorFecha(LocalDateTime desde, LocalDateTime hasta) {
+        return citaRepository.findByFechaHoraBetween(desde, hasta);
+    }
+
+    @Override
+    public List<Cita> buscarCitasPorEstado(EstadoCita estado) {
+        return citaRepository.findByEstado(estado);
     }
 }
