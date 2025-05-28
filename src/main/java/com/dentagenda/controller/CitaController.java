@@ -1,6 +1,7 @@
 package com.dentagenda.controller;
 
 import com.dentagenda.dto.AgendarCitaDTO;
+import com.dentagenda.dto.ReprogramarCitaDTO;
 import com.dentagenda.model.Cita;
 import com.dentagenda.service.CitaService;
 import jakarta.validation.Valid;
@@ -18,5 +19,15 @@ public class CitaController {
     @PostMapping("/agendar")
     public ResponseEntity<Cita> agendarCita(@Valid @RequestBody AgendarCitaDTO dto) {
         return ResponseEntity.ok(citaService.agendarCita(dto));
+    }
+    
+    @PutMapping("/{id}/cancelar")
+    public ResponseEntity<Cita> cancelarCita(@PathVariable Long id) {
+        return ResponseEntity.ok(citaService.cancelarCita(id));
+    }
+
+    @PutMapping("/{id}/reprogramar")
+    public ResponseEntity<Cita> reprogramarCita(@PathVariable Long id, @Valid @RequestBody ReprogramarCitaDTO dto) {
+        return ResponseEntity.ok(citaService.reprogramarCita(id, dto));
     }
 }

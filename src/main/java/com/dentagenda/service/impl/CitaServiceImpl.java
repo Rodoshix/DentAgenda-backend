@@ -1,6 +1,7 @@
 package com.dentagenda.service.impl;
 
 import com.dentagenda.dto.AgendarCitaDTO;
+import com.dentagenda.dto.ReprogramarCitaDTO;
 import com.dentagenda.model.Cita;
 import com.dentagenda.model.EstadoCita;
 import com.dentagenda.model.Paciente;
@@ -41,6 +42,40 @@ public class CitaServiceImpl implements CitaService {
         cita.setEstado(EstadoCita.PENDIENTE);
         cita.setMotivo(dto.getMotivo());
 
+        return citaRepository.save(cita);
+    }
+    @Override
+    public Cita cancelarCita(Long id) {
+        Cita cita = citaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+
+        if (cita.getEstado() == EstadoCita.CANCELADA) {
+            throw new RuntimeException("La cita ya está cancelada");
+        }
+
+        cita.setEstado(EstadoCita.CANCELADA);
+        return citaRepository.save(cita);
+    }
+
+    @Override
+    public Cita reprogramarCita(Long id, ReprogramarCitaDTO dto) {
+        Cita cita = citaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+
+        if (cita.getEstado() == EstadoCita.CANCELADA) {
+            throw new RuntimeException("No se puede reprogramar una cita cancelada");
+        }
+
+        if (dto.getNuevaFechaHora().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("La nueva fecha debe ser futura");
+        }
+
+        boolean yaExiste = citaRepository.existsByFechaHoraAndOdontologo(dto.getNuevaFechaHora(), cita.getOdontologo());
+        if (yaExiste) {
+            throw new RuntimeException("El odontólogo ya tiene una cita en esa fecha/hora");
+        }
+
+        cita.setFechaHora(dto.getNuevaFechaHora());
         return citaRepository.save(cita);
     }
 }

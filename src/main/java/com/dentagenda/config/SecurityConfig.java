@@ -16,8 +16,10 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/pacientes/registro").permitAll()        // habilita registro de pacientes
+                .requestMatchers("/api/pacientes/registro").permitAll()       // habilita registro de pacientes
                 .requestMatchers("/api/citas/agendar").permitAll()            // habilita agendar 
+                .requestMatchers("/api/citas/*/cancelar").permitAll()         // habilita cancelar citas
+                .requestMatchers("/api/citas/*/reprogramar").permitAll()      // habilita reprogramar citas
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
