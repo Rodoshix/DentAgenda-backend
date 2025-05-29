@@ -123,4 +123,9 @@ public class CitaServiceImpl implements CitaService {
 
         return citaRepository.findByFechaHoraAfterAndOdontologo(LocalDateTime.now(), odontologo);
     }
+
+    @Override
+    public List<Cita> obtenerHistorialPorOdontologo(Long odontologoId) {
+        return citaRepository.findByOdontologo_Id(odontologoId);
+    }
 }

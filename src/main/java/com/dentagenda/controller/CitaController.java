@@ -71,4 +71,9 @@ public class CitaController {
     public ResponseEntity<List<Cita>> obtenerCitasFuturasPorOdontologo(@RequestParam String nombre) {
         return ResponseEntity.ok(citaService.obtenerCitasFuturasPorOdontologo(nombre));
     }
+
+    @GetMapping("/odontologo/{id}")
+    public ResponseEntity<List<Cita>> obtenerHistorialOdontologo(@PathVariable Long id) {
+        return ResponseEntity.ok(citaService.obtenerHistorialPorOdontologo(id));
+    }
 }
