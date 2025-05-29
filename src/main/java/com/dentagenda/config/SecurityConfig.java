@@ -20,7 +20,6 @@ public class SecurityConfig {
                 .requestMatchers("/api/citas/agendar").permitAll()            // habilita agendar 
                 .requestMatchers("/api/citas/*/cancelar").permitAll()         // habilita cancelar citas
                 .requestMatchers("/api/citas/*/reprogramar").permitAll()      // habilita reprogramar citas
-                .requestMatchers("/api/citas/paciente/*").permitAll()         // habilita obtener citas por paciente
                 .requestMatchers("/api/citas/fecha").permitAll()              // habilita obtener citas por fecha
                 .requestMatchers("/api/citas/estado").permitAll()             // habilita obtener citas por estado
                 .requestMatchers("/api/citas/buscar-por-odontologo").permitAll() // habilita buscar citas por odontologo
@@ -29,6 +28,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/pacientes/login").permitAll()          // habilita login de pacientes
                 .requestMatchers("/api/odontologos/registro").permitAll()     // habilita registro de odontologos
                 .requestMatchers("/api/citas/odontologo/**").permitAll()       // habilita obtener historial de citas por odontologo
+                .requestMatchers("/api/citas/paciente/**").permitAll()        // habilita obtener historial de citas por paciente
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

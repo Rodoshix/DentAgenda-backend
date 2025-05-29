@@ -41,7 +41,7 @@ public class CitaController {
     }
 
     @GetMapping("/paciente/{id}")
-    public ResponseEntity<List<Cita>> obtenerCitasPorPaciente(@PathVariable Long id) {
+    public ResponseEntity<List<Cita>> obtenerHistorialPaciente(@PathVariable Long id) {
         return ResponseEntity.ok(citaService.obtenerCitasPorPaciente(id));
     }
 
