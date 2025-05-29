@@ -30,8 +30,9 @@ public class Cita {
     @JoinColumn(name = "paciente_id", nullable = false)
     private Paciente paciente;
 
-    @NotNull(message = "El nombre del odontólogo es obligatorio")
-    private String odontologo;
+    @ManyToOne
+    @JoinColumn(name = "odontologo_id", nullable = false)
+    private Odontologo odontologo;
 
     private String motivo; // motivo u observación
 }

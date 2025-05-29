@@ -4,8 +4,10 @@ import com.dentagenda.dto.AgendarCitaDTO;
 import com.dentagenda.dto.ReprogramarCitaDTO;
 import com.dentagenda.model.Cita;
 import com.dentagenda.model.EstadoCita;
+import com.dentagenda.model.Odontologo;
 import com.dentagenda.model.Paciente;
 import com.dentagenda.repository.CitaRepository;
+import com.dentagenda.repository.OdontologoRepository;
 import com.dentagenda.repository.PacienteRepository;
 import com.dentagenda.service.CitaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,9 @@ public class CitaServiceImpl implements CitaService {
     @Autowired
     private PacienteRepository pacienteRepository;
 
+    @Autowired
+    private OdontologoRepository odontologoRepository;
+
     @Override
     public Cita agendarCita(AgendarCitaDTO dto) {
         if (dto.getFechaHora().isBefore(LocalDateTime.now())) {
@@ -33,15 +38,18 @@ public class CitaServiceImpl implements CitaService {
         }
 
         Paciente paciente = pacienteRepository.findById(dto.getPacienteId())
-                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+        .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+        
+        Odontologo odontologo = odontologoRepository.findById(dto.getOdontologoId())
+        .orElseThrow(() -> new RuntimeException("Odontólogo no encontrado"));
 
-        if (citaRepository.existsByFechaHoraAndOdontologo(dto.getFechaHora(), dto.getOdontologo())) {
+        if (citaRepository.existsByFechaHoraAndOdontologo(dto.getFechaHora(), odontologo)) {
             throw new RuntimeException("El odontólogo ya tiene una cita en ese horario");
         }
 
         Cita cita = new Cita();
         cita.setFechaHora(dto.getFechaHora());
-        cita.setOdontologo(dto.getOdontologo());
+        cita.setOdontologo(odontologo);
         cita.setPaciente(paciente);
         cita.setEstado(EstadoCita.PENDIENTE);
         cita.setMotivo(dto.getMotivo());
@@ -102,12 +110,17 @@ public class CitaServiceImpl implements CitaService {
     }
 
     @Override
-    public Page<Cita> buscarCitasPorOdontologo(String odontologo, Pageable pageable) {
-        return citaRepository.findByOdontologoContainingIgnoreCase(odontologo, pageable);
+    public Page<Cita> buscarCitasPorOdontologo(String nombreOdontologo, Pageable pageable) {
+        Odontologo odontologo = odontologoRepository.findByNombreIgnoreCase(nombreOdontologo)
+                .orElseThrow(() -> new RuntimeException("Odontólogo no encontrado"));
+        return citaRepository.findByOdontologo(odontologo, pageable);
     }
 
     @Override
-    public List<Cita> obtenerCitasFuturasPorOdontologo(String odontologo) {
-        return citaRepository.findByFechaHoraAfterAndOdontologoIgnoreCase(LocalDateTime.now(), odontologo);
+    public List<Cita> obtenerCitasFuturasPorOdontologo(String nombreOdontologo) {
+        Odontologo odontologo = odontologoRepository.findByNombreIgnoreCase(nombreOdontologo)
+                .orElseThrow(() -> new RuntimeException("Odontólogo no encontrado"));
+
+        return citaRepository.findByFechaHoraAfterAndOdontologo(LocalDateTime.now(), odontologo);
     }
 }

@@ -1,7 +1,6 @@
 package com.dentagenda.dto;
 
 import jakarta.validation.constraints.Future;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,8 +18,8 @@ public class AgendarCitaDTO {
     @NotNull(message = "Debe especificar el ID del paciente")
     private Long pacienteId;
 
-    @NotBlank(message = "Debe especificar el nombre del odontólogo")
-    private String odontologo;
+    @NotNull(message = "Debe especificar el ID del odontólogo")
+    private Long odontologoId;
 
     private String motivo; // opcional
 }
