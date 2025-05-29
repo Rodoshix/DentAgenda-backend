@@ -26,6 +26,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/citas/buscar-por-odontologo").permitAll() // habilita buscar citas por odontologo
                 .requestMatchers("/api/citas/futuras/odontologo").permitAll() // habilita obtener citas futuras por odontologo
                 .requestMatchers("/api/pacientes/crear-cuenta").permitAll()   // habilita crear cuenta de paciente
+                .requestMatchers("/api/pacientes/login").permitAll()          // habilita login de pacientes
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

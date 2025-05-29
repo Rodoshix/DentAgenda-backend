@@ -2,6 +2,7 @@ package com.dentagenda.service.impl;
 
 import com.dentagenda.dto.PacienteCrearCuentaDTO;
 import com.dentagenda.dto.RegistroPacienteDTO;
+import com.dentagenda.dto.LoginPacienteDTO;
 import com.dentagenda.model.Paciente;
 import com.dentagenda.repository.PacienteRepository;
 import com.dentagenda.service.PacienteService;
@@ -63,5 +64,23 @@ public class PacienteServiceImpl implements PacienteService {
         nuevo.setContrasena(passwordEncoder.encode(dto.getContrasena()));
 
         return pacienteRepository.save(nuevo);
+    }
+
+    @Override
+    public boolean autenticarPaciente(LoginPacienteDTO dto) {
+        Paciente paciente = pacienteRepository.findByRut(dto.getRut())
+                .orElseThrow(() -> new RuntimeException("RUT no registrado"));
+
+        if (paciente.getContrasena() == null) {
+            throw new RuntimeException("Este paciente no tiene cuenta web");
+        }
+
+        boolean contrasenaCorrecta = passwordEncoder.matches(dto.getContrasena(), paciente.getContrasena());
+
+        if (!contrasenaCorrecta) {
+            throw new RuntimeException("Contraseña incorrecta");
+        }
+
+        return true;
     }
 }
