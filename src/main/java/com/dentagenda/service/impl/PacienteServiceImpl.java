@@ -43,11 +43,11 @@ public class PacienteServiceImpl implements PacienteService {
         Paciente paciente = pacienteRepository.findByRut(dto.getRut()).orElse(null);
 
         if (paciente != null) {
-            if (paciente.getContrasena() != null) {
+            if (paciente.getPassword() != null) {
                 throw new RuntimeException("Este paciente ya tiene una cuenta creada.");
             }
             // Si fue registrado por la recepcionista pero no tiene cuenta aún
-            paciente.setContrasena(passwordEncoder.encode(dto.getContrasena()));
+            paciente.setPassword(passwordEncoder.encode(dto.getPassword()));
             return pacienteRepository.save(paciente);
         }
 
@@ -61,7 +61,7 @@ public class PacienteServiceImpl implements PacienteService {
         nuevo.setNombre(dto.getNombre());
         nuevo.setCorreo(dto.getCorreo());
         nuevo.setTelefono(dto.getTelefono());
-        nuevo.setContrasena(passwordEncoder.encode(dto.getContrasena()));
+        nuevo.setPassword(passwordEncoder.encode(dto.getPassword()));
 
         return pacienteRepository.save(nuevo);
     }
@@ -71,11 +71,11 @@ public class PacienteServiceImpl implements PacienteService {
         Paciente paciente = pacienteRepository.findByRut(dto.getRut())
                 .orElseThrow(() -> new RuntimeException("RUT no registrado"));
 
-        if (paciente.getContrasena() == null) {
+        if (paciente.getPassword() == null) {
             throw new RuntimeException("Este paciente no tiene cuenta web");
         }
 
-        boolean contrasenaCorrecta = passwordEncoder.matches(dto.getContrasena(), paciente.getContrasena());
+        boolean contrasenaCorrecta = passwordEncoder.matches(dto.getContrasena(), paciente.getPassword());
 
         if (!contrasenaCorrecta) {
             throw new RuntimeException("Contraseña incorrecta");

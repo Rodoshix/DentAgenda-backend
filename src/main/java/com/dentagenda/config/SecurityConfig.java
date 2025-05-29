@@ -6,10 +6,17 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -29,6 +36,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/odontologos/registro").permitAll()     // habilita registro de odontologos
                 .requestMatchers("/api/citas/odontologo/**").permitAll()       // habilita obtener historial de citas por odontologo
                 .requestMatchers("/api/citas/paciente/**").permitAll()        // habilita obtener historial de citas por paciente
+                .requestMatchers("/api/auth/login").permitAll()               // habilita login de usuarios
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

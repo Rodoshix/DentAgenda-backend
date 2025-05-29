@@ -36,5 +36,5 @@ public class Paciente {
     @NotBlank(message = "El teléfono es obligatorio")
     private String telefono;
 
-    private String contrasena;
+    private String password;
 }

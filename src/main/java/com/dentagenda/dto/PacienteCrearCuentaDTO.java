@@ -12,7 +12,7 @@ public class PacienteCrearCuentaDTO {
     private String rut;
 
     @NotBlank(message = "La contraseña es obligatoria")
-    private String contrasena;
+    private String password ;
 
     // Estos campos son opcionales, solo se usan si el paciente nunca ha sido registrado
     private String nombre;
