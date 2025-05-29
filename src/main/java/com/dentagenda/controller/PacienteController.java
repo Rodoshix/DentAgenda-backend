@@ -1,5 +1,6 @@
 package com.dentagenda.controller;
 
+import com.dentagenda.dto.PacienteCrearCuentaDTO;
 import com.dentagenda.dto.RegistroPacienteDTO;
 import com.dentagenda.model.Paciente;
 import com.dentagenda.service.PacienteService;
@@ -18,5 +19,10 @@ public class PacienteController {
     @PostMapping("/registro")
     public ResponseEntity<Paciente> registrar(@Valid @RequestBody RegistroPacienteDTO dto) {
         return ResponseEntity.ok(pacienteService.registrar(dto));
+    }
+
+    @PostMapping("/crear-cuenta")
+    public ResponseEntity<Paciente> crearCuenta(@Valid @RequestBody PacienteCrearCuentaDTO dto) {
+        return ResponseEntity.ok(pacienteService.crearCuentaPaciente(dto));
     }
 }

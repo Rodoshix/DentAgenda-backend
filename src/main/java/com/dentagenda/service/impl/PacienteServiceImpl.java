@@ -1,10 +1,12 @@
 package com.dentagenda.service.impl;
 
+import com.dentagenda.dto.PacienteCrearCuentaDTO;
 import com.dentagenda.dto.RegistroPacienteDTO;
 import com.dentagenda.model.Paciente;
 import com.dentagenda.repository.PacienteRepository;
 import com.dentagenda.service.PacienteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -12,6 +14,9 @@ public class PacienteServiceImpl implements PacienteService {
 
     @Autowired
     private PacienteRepository pacienteRepository;
+
+    @Autowired
+        private PasswordEncoder passwordEncoder;
 
     @Override
     public Paciente registrar(RegistroPacienteDTO dto) {
@@ -30,5 +35,33 @@ public class PacienteServiceImpl implements PacienteService {
         paciente.setTelefono(dto.getTelefono());
 
         return pacienteRepository.save(paciente);
+    }
+
+    @Override
+    public Paciente crearCuentaPaciente(PacienteCrearCuentaDTO dto) {
+        Paciente paciente = pacienteRepository.findByRut(dto.getRut()).orElse(null);
+
+        if (paciente != null) {
+            if (paciente.getContrasena() != null) {
+                throw new RuntimeException("Este paciente ya tiene una cuenta creada.");
+            }
+            // Si fue registrado por la recepcionista pero no tiene cuenta aún
+            paciente.setContrasena(passwordEncoder.encode(dto.getContrasena()));
+            return pacienteRepository.save(paciente);
+        }
+
+        // Si no existe, verificar que vengan todos los datos
+        if (dto.getNombre() == null || dto.getCorreo() == null || dto.getTelefono() == null) {
+            throw new RuntimeException("Faltan datos obligatorios para registrar un nuevo paciente.");
+        }
+
+        Paciente nuevo = new Paciente();
+        nuevo.setRut(dto.getRut());
+        nuevo.setNombre(dto.getNombre());
+        nuevo.setCorreo(dto.getCorreo());
+        nuevo.setTelefono(dto.getTelefono());
+        nuevo.setContrasena(passwordEncoder.encode(dto.getContrasena()));
+
+        return pacienteRepository.save(nuevo);
     }
 }
