@@ -66,4 +66,9 @@ public class CitaController {
         Pageable pageable = PageRequest.of(page, size);
         return ResponseEntity.ok(citaService.buscarCitasPorOdontologo(nombre, pageable));
     }
+
+    @GetMapping("/futuras/odontologo")
+    public ResponseEntity<List<Cita>> obtenerCitasFuturasPorOdontologo(@RequestParam String nombre) {
+        return ResponseEntity.ok(citaService.obtenerCitasFuturasPorOdontologo(nombre));
+    }
 }

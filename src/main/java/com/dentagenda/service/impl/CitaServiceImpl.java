@@ -105,4 +105,9 @@ public class CitaServiceImpl implements CitaService {
     public Page<Cita> buscarCitasPorOdontologo(String odontologo, Pageable pageable) {
         return citaRepository.findByOdontologoContainingIgnoreCase(odontologo, pageable);
     }
+
+    @Override
+    public List<Cita> obtenerCitasFuturasPorOdontologo(String odontologo) {
+        return citaRepository.findByFechaHoraAfterAndOdontologoIgnoreCase(LocalDateTime.now(), odontologo);
+    }
 }

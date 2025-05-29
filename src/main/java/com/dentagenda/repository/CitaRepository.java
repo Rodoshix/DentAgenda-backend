@@ -21,4 +21,6 @@ public interface CitaRepository extends JpaRepository<Cita, Long> {
     List<Cita> findByEstado(EstadoCita estado);
 
     Page<Cita> findByOdontologoContainingIgnoreCase(String odontologo, Pageable pageable);
+
+    List<Cita> findByFechaHoraAfterAndOdontologoIgnoreCase(LocalDateTime fecha, String odontologo);
 }

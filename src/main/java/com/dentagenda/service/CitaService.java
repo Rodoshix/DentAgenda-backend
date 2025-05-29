@@ -18,4 +18,5 @@ public interface CitaService {
     List<Cita> buscarCitasPorFecha(LocalDateTime desde, LocalDateTime hasta);
     List<Cita> buscarCitasPorEstado(EstadoCita estado);
     Page<Cita> buscarCitasPorOdontologo(String odontologo, Pageable pageable);
+    List<Cita> obtenerCitasFuturasPorOdontologo(String odontologo);
 }
