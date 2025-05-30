@@ -4,6 +4,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
+import io.jsonwebtoken.Claims;
 
 import java.security.Key;
 import java.util.Date;
@@ -27,5 +28,27 @@ public class JwtUtil {
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_MS))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+     //Método para extraer el "username" desde el token
+     public String extractUsername(String token) {
+        return extractAllClaims(token).getSubject();
+    }
+
+    //Método para validar el token (por expiración)
+    public boolean validateToken(String token) {
+        try {
+            return !extractAllClaims(token).getExpiration().before(new Date());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 }
