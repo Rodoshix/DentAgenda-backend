@@ -164,10 +164,12 @@ public class CitaServiceImpl implements CitaService {
         for (Odontologo od : odontologos) {
             LocalDateTime desde = fecha.atTime(0, 0);
             LocalDateTime hasta = fecha.atTime(23, 59);
-            List<Cita> citas = citaRepository.findByOdontologoAndFechaHoraBetween(od, desde, hasta);
+            List<Cita> citas = citaRepository.findByOdontologoAndFechaHoraBetweenAndEstadoNot(
+                od, desde, hasta, EstadoCita.CANCELADA
+            );
             List<BloqueoAgenda> bloqueos = bloqueoAgendaRepository.findByOdontologoRutAndFecha(od.getRut(), fecha);
 
-            List<String> horas = generarHorasDelDia();  // Ej: 09:00 a 18:00 cada 30 min
+            List<String> horas = generarHorasDelDia();
 
             // Filtrar citas agendadas
             Set<String> horasOcupadas = citas.stream()
