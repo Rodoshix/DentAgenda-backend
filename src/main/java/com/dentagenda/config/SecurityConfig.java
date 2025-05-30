@@ -58,6 +58,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/login").permitAll()                      // habilita login de usuarios
                 .requestMatchers("/api/usuarios/crear").permitAll()                     // (solo mientras no implementamos autenticación de admin)
                 .requestMatchers("/api/recepcionistas/registro").permitAll()         // habilita registro de recepcionistas     
+                .requestMatchers("/api/tratamientos/registrar").permitAll()          // habilita registrar tratamientos
+                .requestMatchers("/api/tratamientos/paciente/**").permitAll()        // habilita obtener tratamientos por paciente
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
