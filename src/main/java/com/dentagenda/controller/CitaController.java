@@ -1,12 +1,14 @@
 package com.dentagenda.controller;
 
 import com.dentagenda.dto.AgendarCitaDTO;
+import com.dentagenda.dto.OdontologoDisponibilidadDTO;
 import com.dentagenda.dto.ReprogramarCitaDTO;
 import com.dentagenda.model.Cita;
 import com.dentagenda.model.EstadoCita;
 import com.dentagenda.service.CitaService;
 import jakarta.validation.Valid;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -75,5 +77,11 @@ public class CitaController {
     @GetMapping("/odontologo/{id}")
     public ResponseEntity<List<Cita>> obtenerHistorialOdontologo(@PathVariable Long id) {
         return ResponseEntity.ok(citaService.obtenerHistorialPorOdontologo(id));
+    }
+
+    @GetMapping("/disponibilidad")
+    public List<OdontologoDisponibilidadDTO> disponibilidad(
+            @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+        return citaService.consultarDisponibilidadPorFecha(fecha);
     }
 }

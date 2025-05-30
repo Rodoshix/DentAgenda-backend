@@ -1,6 +1,7 @@
 package com.dentagenda.service.impl;
 
 import com.dentagenda.dto.AgendarCitaDTO;
+import com.dentagenda.dto.OdontologoDisponibilidadDTO;
 import com.dentagenda.dto.ReprogramarCitaDTO;
 import com.dentagenda.model.BloqueoAgenda;
 import com.dentagenda.model.Cita;
@@ -19,8 +20,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.Set;
 
 @Service
 public class CitaServiceImpl implements CitaService {
@@ -148,5 +154,58 @@ public class CitaServiceImpl implements CitaService {
     @Override
     public List<Cita> obtenerHistorialPorOdontologo(Long odontologoId) {
         return citaRepository.findByOdontologo_Id(odontologoId);
+    }
+
+    @Override
+    public List<OdontologoDisponibilidadDTO> consultarDisponibilidadPorFecha(LocalDate fecha) {
+        List<Odontologo> odontologos = odontologoRepository.findAll();
+        List<OdontologoDisponibilidadDTO> respuesta = new ArrayList<>();
+
+        for (Odontologo od : odontologos) {
+            LocalDateTime desde = fecha.atTime(0, 0);
+            LocalDateTime hasta = fecha.atTime(23, 59);
+            List<Cita> citas = citaRepository.findByOdontologoAndFechaHoraBetween(od, desde, hasta);
+            List<BloqueoAgenda> bloqueos = bloqueoAgendaRepository.findByOdontologoRutAndFecha(od.getRut(), fecha);
+
+            List<String> horas = generarHorasDelDia();  // Ej: 09:00 a 18:00 cada 30 min
+
+            // Filtrar citas agendadas
+            Set<String> horasOcupadas = citas.stream()
+                .map(c -> c.getFechaHora().toLocalTime().toString().substring(0, 5))
+                .collect(Collectors.toSet());
+
+            // Filtrar horas bloqueadas
+            for (BloqueoAgenda b : bloqueos) {
+                horas.removeIf(h -> {
+                    LocalTime t = LocalTime.parse(h);
+                    return !t.isBefore(b.getHoraInicio()) && !t.isAfter(b.getHoraFin());
+                });
+            }
+
+            // Remover horas con citas
+            horas.removeIf(horasOcupadas::contains);
+
+            OdontologoDisponibilidadDTO dto = new OdontologoDisponibilidadDTO();
+            dto.setOdontologoId(od.getId());
+            dto.setNombre(od.getNombre());
+            dto.setHorasDisponibles(horas);
+
+            respuesta.add(dto);
+        }
+
+        return respuesta;
+    }
+
+    private List<String> generarHorasDelDia() {
+        List<String> horas = new ArrayList<>();
+        LocalTime inicio = LocalTime.of(9, 0);
+        LocalTime fin = LocalTime.of(18, 0);
+
+        while (!inicio.isAfter(fin)) {
+            horas.add(inicio.toString().substring(0, 5));
+            inicio = inicio.plusHours(1);;
+        }
+
+        return horas;
     }
 }

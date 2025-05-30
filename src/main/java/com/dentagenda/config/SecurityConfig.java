@@ -61,6 +61,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/tratamientos/registrar").permitAll()          // habilita registrar tratamientos
                 .requestMatchers("/api/tratamientos/paciente/**").permitAll()        // habilita obtener tratamientos por paciente
                 .requestMatchers("/api/bloqueos/registrar").permitAll()              // habilita registrar bloqueos de agenda
+                .requestMatchers("/api/citas/disponibilidad/**").permitAll()         // habilita obtener disponibilidad de citas
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

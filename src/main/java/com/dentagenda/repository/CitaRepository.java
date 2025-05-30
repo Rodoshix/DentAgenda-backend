@@ -28,4 +28,6 @@ public interface CitaRepository extends JpaRepository<Cita, Long> {
     Page<Cita> findByOdontologo(Odontologo odontologo, Pageable pageable);
     
     List<Cita> findByOdontologo_Id(Long odontologoId);
+
+    List<Cita> findByOdontologoAndFechaHoraBetween(Odontologo odontologo, LocalDateTime inicio, LocalDateTime fin);
 }
