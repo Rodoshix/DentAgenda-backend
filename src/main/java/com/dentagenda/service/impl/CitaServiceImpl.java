@@ -106,39 +106,39 @@ public class CitaServiceImpl implements CitaService {
     }
 
     @Override
-        public Cita reprogramarCita(Long id, ReprogramarCitaDTO dto) {
-            Cita cita = citaRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+    public Cita reprogramarCita(Long id, ReprogramarCitaDTO dto) {
+        Cita cita = citaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
 
-            if (cita.getEstado() == EstadoCita.CANCELADA) {
-                throw new RuntimeException("No se puede reprogramar una cita cancelada");
-            }
-
-            if (dto.getNuevaFechaHora().isBefore(LocalDateTime.now())) {
-                throw new RuntimeException("La nueva fecha debe ser futura");
-            }
-
-            // Redondear la nueva fecha/hora a la hora exacta
-            LocalDateTime fechaHoraRedondeada = dto.getNuevaFechaHora()
-                .withMinute(0)
-                .withSecond(0)
-                .withNano(0);
-
-            if (fechaHoraRedondeada.isBefore(LocalDateTime.now())) {
-                    throw new RuntimeException("La nueva fecha debe ser futura");
-            }
-
-            // Validar si hay una cita no cancelada en esa hora exacta (excepto esta misma cita)
-            boolean yaExiste = citaRepository.existsByFechaHoraAndOdontologoAndEstadoNot(
-                fechaHoraRedondeada, cita.getOdontologo(), EstadoCita.CANCELADA);
-
-            if (yaExiste) {
-                throw new RuntimeException("El odontólogo ya tiene una cita en esa fecha/hora");
-            }
-
-            cita.setFechaHora(fechaHoraRedondeada);
-            return citaRepository.save(cita);
+        if (cita.getEstado() == EstadoCita.CANCELADA) {
+            throw new RuntimeException("No se puede reprogramar una cita cancelada");
         }
+
+        if (dto.getNuevaFechaHora().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException("La nueva fecha debe ser futura");
+        }
+
+        // Redondear la nueva fecha/hora a la hora exacta
+        LocalDateTime fechaHoraRedondeada = dto.getNuevaFechaHora()
+            .withMinute(0)
+            .withSecond(0)
+            .withNano(0);
+
+        if (fechaHoraRedondeada.isBefore(LocalDateTime.now())) {
+                throw new RuntimeException("La nueva fecha debe ser futura");
+        }
+
+        // Validar si hay una cita no cancelada en esa hora exacta (excepto esta misma cita)
+        boolean yaExiste = citaRepository.existsByFechaHoraAndOdontologoAndEstadoNot(
+            fechaHoraRedondeada, cita.getOdontologo(), EstadoCita.CANCELADA);
+
+        if (yaExiste) {
+            throw new RuntimeException("El odontólogo ya tiene una cita en esa fecha/hora");
+        }
+
+        cita.setFechaHora(fechaHoraRedondeada);
+        return citaRepository.save(cita);
+    }
 
     @Override
     public List<Cita> obtenerCitasPorPaciente(Long pacienteId) {
@@ -231,5 +231,18 @@ public class CitaServiceImpl implements CitaService {
         }
 
         return horas;
+    }
+
+    @Override
+    public Cita confirmarAsistencia(Long id) {
+        Cita cita = citaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+
+        if (cita.getEstado() != EstadoCita.PENDIENTE) {
+            throw new RuntimeException("Solo se puede confirmar una cita pendiente.");
+        }
+
+        cita.setEstado(EstadoCita.CONFIRMADA);
+        return citaRepository.save(cita);
     }
 }

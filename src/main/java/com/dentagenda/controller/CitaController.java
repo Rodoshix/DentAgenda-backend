@@ -84,4 +84,10 @@ public class CitaController {
             @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
         return citaService.consultarDisponibilidadPorFecha(fecha);
     }
+
+    @PutMapping("/confirmar-asistencia/{id}")
+    public ResponseEntity<Cita> confirmarAsistencia(@PathVariable Long id) {
+        Cita cita = citaService.confirmarAsistencia(id);
+        return ResponseEntity.ok(cita);
+    }
 }

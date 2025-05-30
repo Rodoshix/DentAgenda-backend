@@ -23,4 +23,5 @@ public interface CitaService {
     List<Cita> obtenerCitasFuturasPorOdontologo(String odontologo);
     List<Cita> obtenerHistorialPorOdontologo(Long odontologoId);
     List<OdontologoDisponibilidadDTO> consultarDisponibilidadPorFecha(LocalDate fecha);
+    Cita confirmarAsistencia(Long id);
 }
