@@ -56,6 +56,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/citas/odontologo/**").permitAll()       // habilita obtener historial de citas por odontologo
                 .requestMatchers("/api/citas/paciente/**").permitAll()        // habilita obtener historial de citas por paciente
                 .requestMatchers("/api/auth/login").permitAll()               // habilita login de usuarios
+                .requestMatchers("/api/usuarios/crear").permitAll()           // habilita crear usuarios
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

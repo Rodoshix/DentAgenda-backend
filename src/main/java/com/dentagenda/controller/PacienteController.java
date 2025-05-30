@@ -1,6 +1,5 @@
 package com.dentagenda.controller;
 
-import com.dentagenda.dto.LoginPacienteDTO;
 import com.dentagenda.dto.PacienteCrearCuentaDTO;
 import com.dentagenda.dto.RegistroPacienteDTO;
 import com.dentagenda.model.Paciente;
@@ -25,10 +24,5 @@ public class PacienteController {
     @PostMapping("/crear-cuenta")
     public ResponseEntity<Paciente> crearCuenta(@Valid @RequestBody PacienteCrearCuentaDTO dto) {
         return ResponseEntity.ok(pacienteService.crearCuentaPaciente(dto));
-    }
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@Valid @RequestBody LoginPacienteDTO dto) {
-        pacienteService.autenticarPaciente(dto);
-        return ResponseEntity.ok("Inicio de sesión exitoso");
     }
 }

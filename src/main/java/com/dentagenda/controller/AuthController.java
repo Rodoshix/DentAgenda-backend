@@ -1,8 +1,8 @@
 package com.dentagenda.controller;
 
 import com.dentagenda.dto.AuthRequest;
-import com.dentagenda.model.Paciente;
-import com.dentagenda.repository.PacienteRepository;
+import com.dentagenda.model.Usuario;
+import com.dentagenda.repository.UsuarioRepository;
 import com.dentagenda.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +17,7 @@ import java.util.Map;
 public class AuthController {
 
     @Autowired
-    private PacienteRepository pacienteRepository;
+    private UsuarioRepository usuarioRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -27,20 +27,19 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest dto) {
-        Paciente paciente = pacienteRepository.findByRut(dto.getRut())
-                .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+        Usuario usuario = usuarioRepository.findByRut(dto.getRut())
+                .orElseThrow(() -> new RuntimeException("RUT no registrado"));
 
-        if (paciente.getPassword() == null || !passwordEncoder.matches(dto.getPassword(), paciente.getPassword())) {
-            return ResponseEntity.status(403).body("Credenciales inválidas");
+        if (!passwordEncoder.matches(dto.getPassword(), usuario.getPassword())) {
+            return ResponseEntity.status(403).body("Contraseña inválida");
         }
 
-        // Aquí puedes establecer el rol como "PACIENTE", o usar un campo real si lo tuvieras
-        String token = jwtUtil.generateToken(paciente.getRut(), "PACIENTE");
+        String token = jwtUtil.generateToken(usuario.getRut(), usuario.getRol().name());
 
         Map<String, Object> response = new HashMap<>();
         response.put("token", token);
-        response.put("nombre", paciente.getNombre());
-        response.put("rut", paciente.getRut());
+        response.put("rut", usuario.getRut());
+        response.put("rol", usuario.getRol().name());
 
         return ResponseEntity.ok(response);
     }

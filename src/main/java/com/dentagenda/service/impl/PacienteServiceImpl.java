@@ -2,10 +2,15 @@ package com.dentagenda.service.impl;
 
 import com.dentagenda.dto.PacienteCrearCuentaDTO;
 import com.dentagenda.dto.RegistroPacienteDTO;
-import com.dentagenda.dto.LoginPacienteDTO;
 import com.dentagenda.model.Paciente;
+import com.dentagenda.model.RolUsuario;
+import com.dentagenda.model.Usuario;
 import com.dentagenda.repository.PacienteRepository;
+import com.dentagenda.repository.UsuarioRepository;
 import com.dentagenda.service.PacienteService;
+
+import jakarta.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,7 +22,10 @@ public class PacienteServiceImpl implements PacienteService {
     private PacienteRepository pacienteRepository;
 
     @Autowired
-        private PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     @Override
     public Paciente registrar(RegistroPacienteDTO dto) {
@@ -35,52 +43,57 @@ public class PacienteServiceImpl implements PacienteService {
         paciente.setCorreo(dto.getCorreo());
         paciente.setTelefono(dto.getTelefono());
 
+        // No se crea Usuario aún. Solo se guarda como ficha.
         return pacienteRepository.save(paciente);
     }
-
+    
     @Override
+    @Transactional
     public Paciente crearCuentaPaciente(PacienteCrearCuentaDTO dto) {
         Paciente paciente = pacienteRepository.findByRut(dto.getRut()).orElse(null);
 
         if (paciente != null) {
-            if (paciente.getPassword() != null) {
+            // Ya fue registrado por recepcionista
+            if (paciente.getUsuario() != null) {
                 throw new RuntimeException("Este paciente ya tiene una cuenta creada.");
             }
-            // Si fue registrado por la recepcionista pero no tiene cuenta aún
-            paciente.setPassword(passwordEncoder.encode(dto.getPassword()));
+
+            if (dto.getPassword() == null) {
+                throw new RuntimeException("Debe ingresar una contraseña para crear su cuenta.");
+            }
+
+            Usuario usuario = Usuario.builder()
+                    .rut(dto.getRut())
+                    .password(passwordEncoder.encode(dto.getPassword()))
+                    .rol(RolUsuario.PACIENTE)
+                    .build();
+
+            usuarioRepository.save(usuario);
+            paciente.setUsuario(usuario);
             return pacienteRepository.save(paciente);
         }
 
-        // Si no existe, verificar que vengan todos los datos
-        if (dto.getNombre() == null || dto.getCorreo() == null || dto.getTelefono() == null) {
+        // Si el paciente no existe, validar que vengan todos los datos
+        if (dto.getNombre() == null || dto.getCorreo() == null || dto.getTelefono() == null || dto.getPassword() == null) {
             throw new RuntimeException("Faltan datos obligatorios para registrar un nuevo paciente.");
         }
 
-        Paciente nuevo = new Paciente();
-        nuevo.setRut(dto.getRut());
-        nuevo.setNombre(dto.getNombre());
-        nuevo.setCorreo(dto.getCorreo());
-        nuevo.setTelefono(dto.getTelefono());
-        nuevo.setPassword(passwordEncoder.encode(dto.getPassword()));
+        Usuario nuevoUsuario = Usuario.builder()
+                .rut(dto.getRut())
+                .password(passwordEncoder.encode(dto.getPassword()))
+                .rol(RolUsuario.PACIENTE)
+                .build();
 
-        return pacienteRepository.save(nuevo);
+        usuarioRepository.save(nuevoUsuario);
+
+        Paciente nuevoPaciente = new Paciente();
+        nuevoPaciente.setRut(dto.getRut());
+        nuevoPaciente.setNombre(dto.getNombre());
+        nuevoPaciente.setCorreo(dto.getCorreo());
+        nuevoPaciente.setTelefono(dto.getTelefono());
+        nuevoPaciente.setUsuario(nuevoUsuario);
+
+        return pacienteRepository.save(nuevoPaciente);
     }
 
-    @Override
-    public boolean autenticarPaciente(LoginPacienteDTO dto) {
-        Paciente paciente = pacienteRepository.findByRut(dto.getRut())
-                .orElseThrow(() -> new RuntimeException("RUT no registrado"));
-
-        if (paciente.getPassword() == null) {
-            throw new RuntimeException("Este paciente no tiene cuenta web");
-        }
-
-        boolean contrasenaCorrecta = passwordEncoder.matches(dto.getContrasena(), paciente.getPassword());
-
-        if (!contrasenaCorrecta) {
-            throw new RuntimeException("Contraseña incorrecta");
-        }
-
-        return true;
-    }
 }
