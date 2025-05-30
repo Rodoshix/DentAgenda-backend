@@ -17,6 +17,6 @@ public class OdontologoController {
 
     @PostMapping("/registro")
     public ResponseEntity<Odontologo> registrar(@Valid @RequestBody RegistroOdontologoDTO dto) {
-        return ResponseEntity.ok(odontologoService.registrar(dto));
+        return ResponseEntity.ok(odontologoService.registrarOdontologo(dto));
     }
 }

@@ -16,7 +16,12 @@ public class RegistroOdontologoDTO {
     private String rut;
 
     @Email(message = "Correo electrónico inválido")
+    @NotBlank(message = "El correo es obligatorio")
     private String correo;
 
+    @NotBlank(message = "La especialidad es obligatoria")
     private String especialidad;
+
+    @NotBlank(message = "La contraseña es obligatoria")
+    private String password;
 }

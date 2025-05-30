@@ -1,8 +1,9 @@
 package com.dentagenda.service;
 
 import com.dentagenda.model.Usuario;
-import com.dentagenda.model.RolUsuario;
+import com.dentagenda.dto.CrearUsuarioDTO;
+
 
 public interface UsuarioService {
-    Usuario crearUsuario(String rut, String password, RolUsuario rol);
+    Usuario crearUsuario(CrearUsuarioDTO dto);
 }

@@ -1,6 +1,7 @@
 package com.dentagenda.service.impl;
 
 import com.dentagenda.model.Usuario;
+import com.dentagenda.dto.CrearUsuarioDTO;
 import com.dentagenda.model.RolUsuario;
 import com.dentagenda.repository.UsuarioRepository;
 import com.dentagenda.service.UsuarioService;
@@ -18,14 +19,21 @@ public class UsuarioServiceImpl implements UsuarioService {
     private PasswordEncoder passwordEncoder;
 
     @Override
-    public Usuario crearUsuario(String rut, String password, RolUsuario rol) {
-        if (usuarioRepository.findByRut(rut).isPresent()) {
+    public Usuario crearUsuario(CrearUsuarioDTO dto) {
+        if (usuarioRepository.findByRut(dto.getRut()).isPresent()) {
             throw new RuntimeException("El usuario ya existe");
         }
 
+        RolUsuario rol;
+        try {
+            rol = RolUsuario.valueOf(dto.getRol().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Rol inválido. Debe ser ODONTOLOGO o RECEPCIONISTA.");
+        }
+
         Usuario nuevoUsuario = Usuario.builder()
-                .rut(rut)
-                .password(passwordEncoder.encode(password))
+                .rut(dto.getRut())
+                .password(passwordEncoder.encode(dto.getPassword()))
                 .rol(rol)
                 .build();
 

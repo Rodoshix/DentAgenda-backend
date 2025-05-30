@@ -29,4 +29,8 @@ public class Odontologo {
     private String correo;
 
     private String especialidad;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "usuario_id")
+    private Usuario usuario;
 }
