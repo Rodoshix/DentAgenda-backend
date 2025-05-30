@@ -2,19 +2,22 @@ package com.dentagenda.service.impl;
 
 import com.dentagenda.dto.AgendarCitaDTO;
 import com.dentagenda.dto.ReprogramarCitaDTO;
+import com.dentagenda.model.BloqueoAgenda;
 import com.dentagenda.model.Cita;
 import com.dentagenda.model.EstadoCita;
 import com.dentagenda.model.Odontologo;
 import com.dentagenda.model.Paciente;
+import com.dentagenda.repository.BloqueoAgendaRepository;
 import com.dentagenda.repository.CitaRepository;
 import com.dentagenda.repository.OdontologoRepository;
 import com.dentagenda.repository.PacienteRepository;
 import com.dentagenda.service.CitaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,6 +34,9 @@ public class CitaServiceImpl implements CitaService {
     @Autowired
     private OdontologoRepository odontologoRepository;
 
+    @Autowired
+    private BloqueoAgendaRepository bloqueoAgendaRepository;
+
     @Override
     public Cita agendarCita(AgendarCitaDTO dto) {
         if (dto.getFechaHora().isBefore(LocalDateTime.now())) {
@@ -45,6 +51,21 @@ public class CitaServiceImpl implements CitaService {
 
         if (citaRepository.existsByFechaHoraAndOdontologo(dto.getFechaHora(), odontologo)) {
             throw new RuntimeException("El odontólogo ya tiene una cita en ese horario");
+        }
+
+        List<BloqueoAgenda> bloqueos = bloqueoAgendaRepository
+            .findByOdontologoRutAndFecha(odontologo.getRut(), dto.getFechaHora().toLocalDate());
+
+        boolean estaBloqueado = bloqueos.stream().anyMatch(bloqueo ->
+            !dto.getFechaHora().toLocalTime().isBefore(bloqueo.getHoraInicio()) &&
+            !dto.getFechaHora().toLocalTime().isAfter(bloqueo.getHoraFin())
+        );
+
+        if (estaBloqueado) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST,
+                "El odontólogo tiene su agenda bloqueada en ese horario."
+            );
         }
 
         Cita cita = new Cita();
