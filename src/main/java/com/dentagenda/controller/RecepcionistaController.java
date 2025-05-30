@@ -20,4 +20,10 @@ public class RecepcionistaController {
         Recepcionista nuevo = recepcionistaService.registrarRecepcionista(dto);
         return ResponseEntity.ok(nuevo);
     }
+
+    @DeleteMapping("/eliminar/{id}")
+    public ResponseEntity<Void> eliminarRecepcionista(@PathVariable Long id) {
+        recepcionistaService.eliminarRecepcionista(id);
+        return ResponseEntity.noContent().build();
+    }
 }

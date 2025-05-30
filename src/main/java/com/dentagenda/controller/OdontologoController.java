@@ -19,4 +19,10 @@ public class OdontologoController {
     public ResponseEntity<Odontologo> registrar(@Valid @RequestBody RegistroOdontologoDTO dto) {
         return ResponseEntity.ok(odontologoService.registrarOdontologo(dto));
     }
+
+    @DeleteMapping("/eliminar/{id}")
+    public ResponseEntity<Void> eliminarOdontologo(@PathVariable Long id) {
+        odontologoService.eliminarOdontologo(id);
+        return ResponseEntity.noContent().build();
+    }
 }

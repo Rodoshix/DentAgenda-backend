@@ -2,6 +2,7 @@ package com.dentagenda.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -62,6 +63,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/tratamientos/paciente/**").permitAll()        // habilita obtener tratamientos por paciente
                 .requestMatchers("/api/bloqueos/registrar").permitAll()              // habilita registrar bloqueos de agenda
                 .requestMatchers("/api/citas/disponibilidad/**").permitAll()         // habilita obtener disponibilidad de citas
+                .requestMatchers(HttpMethod.DELETE, "/api/odontologos/eliminar/**").permitAll()
+                .requestMatchers(HttpMethod.DELETE, "/api/recepcionistas/eliminar/**").permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

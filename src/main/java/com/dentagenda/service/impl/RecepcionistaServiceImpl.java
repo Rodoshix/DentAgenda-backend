@@ -47,4 +47,16 @@ public class RecepcionistaServiceImpl implements RecepcionistaService {
 
         return recepcionistaRepository.save(recepcionista);
     }
+
+    @Override
+    public void eliminarRecepcionista(Long id) {
+        Recepcionista recepcionista = recepcionistaRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Recepcionista no encontrada"));
+
+        recepcionistaRepository.delete(recepcionista);
+
+        if (recepcionista.getUsuario() != null) {
+            usuarioRepository.delete(recepcionista.getUsuario());
+        }
+    }
 }

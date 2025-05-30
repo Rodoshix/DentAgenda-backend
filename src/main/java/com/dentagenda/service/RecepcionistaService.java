@@ -5,4 +5,5 @@ import com.dentagenda.model.Recepcionista;
 
 public interface RecepcionistaService {
     Recepcionista registrarRecepcionista(RegistroRecepcionistaDTO dto);
+    void eliminarRecepcionista(Long id);
 }

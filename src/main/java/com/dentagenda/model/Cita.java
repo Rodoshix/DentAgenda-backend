@@ -1,7 +1,6 @@
 package com.dentagenda.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +19,6 @@ public class Cita {
     private Long id;
 
     @NotNull(message = "La fecha y hora son obligatorias")
-    @Future(message = "La fecha debe ser futura")
     private LocalDateTime fechaHora;
 
     @Enumerated(EnumType.STRING)

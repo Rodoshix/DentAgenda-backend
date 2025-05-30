@@ -5,6 +5,7 @@ import com.dentagenda.model.Odontologo;
 import com.dentagenda.model.RolUsuario;
 import com.dentagenda.model.Usuario;
 import com.dentagenda.repository.OdontologoRepository;
+import com.dentagenda.repository.UsuarioRepository;
 import com.dentagenda.service.OdontologoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +20,9 @@ public class OdontologoServiceImpl implements OdontologoService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
 
     @Override
@@ -38,5 +42,17 @@ public class OdontologoServiceImpl implements OdontologoService {
         odontologo.setUsuario(usuario); // aquí está la magia
 
         return odontologoRepository.save(odontologo);
+    }
+
+    @Override
+    public void eliminarOdontologo(Long id) {
+        Odontologo odontologo = odontologoRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Odontólogo no encontrado"));
+
+        odontologoRepository.delete(odontologo);
+
+        if (odontologo.getUsuario() != null) {
+            usuarioRepository.delete(odontologo.getUsuario());
+        }
     }
 }
