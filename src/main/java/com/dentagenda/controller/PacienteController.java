@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/pacientes")
 public class PacienteController {
@@ -24,5 +26,15 @@ public class PacienteController {
     @PostMapping("/crear-cuenta")
     public ResponseEntity<Paciente> crearCuenta(@Valid @RequestBody PacienteCrearCuentaDTO dto) {
         return ResponseEntity.ok(pacienteService.crearCuentaPaciente(dto));
+    }
+
+    @GetMapping("/{rut}")
+    public ResponseEntity<Paciente> obtenerPorRut(@PathVariable String rut) {
+        return ResponseEntity.ok(pacienteService.obtenerPorRut(rut));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Paciente>> listarTodos() {
+        return ResponseEntity.ok(pacienteService.listarPacientes());
     }
 }

@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class PacienteServiceImpl implements PacienteService {
 
@@ -94,6 +96,17 @@ public class PacienteServiceImpl implements PacienteService {
         nuevoPaciente.setUsuario(nuevoUsuario);
 
         return pacienteRepository.save(nuevoPaciente);
+    }
+
+    @Override
+    public List<Paciente> listarPacientes() {
+        return pacienteRepository.findAll();
+    }
+
+    @Override
+    public Paciente obtenerPorRut(String rut) {
+        return pacienteRepository.findByRut(rut)
+            .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
     }
 
 }

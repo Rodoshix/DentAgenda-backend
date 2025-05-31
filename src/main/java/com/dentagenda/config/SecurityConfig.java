@@ -61,11 +61,14 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/usuarios/perfil").hasAnyRole("PACIENTE", "ODONTOLOGO", "RECEPCIONISTA", "ADMIN")
                 
                 //Módulo: Pacientes
-                .requestMatchers("/api/pacientes/registro").hasRole("RECEPCIONISTA")
-                .requestMatchers("/api/pacientes/crear-cuenta").permitAll()
-                .requestMatchers("/api/usuarios/registro-paciente-web").permitAll()
-                .requestMatchers("/api/pacientes/{rut}").hasAnyRole("PACIENTE", "RECEPCIONISTA") // Validar rut en backend
-                .requestMatchers("/api/pacientes").hasAnyRole("RECEPCIONISTA", "ADMIN")
+                    // Registro del paciente por parte de recepcionista
+                .requestMatchers(HttpMethod.POST, "/api/pacientes/registro").hasRole("RECEPCIONISTA")
+                    // Registro o activación de cuenta web por parte del paciente
+                .requestMatchers(HttpMethod.POST, "/api/pacientes/crear-cuenta").permitAll()
+                    // Consultar paciente por RUT
+                .requestMatchers(HttpMethod.GET, "/api/pacientes/**").hasAnyRole("RECEPCIONISTA", "ODONTOLOGO")
+                    // Listar todos los pacientes
+                .requestMatchers(HttpMethod.GET, "/api/pacientes").hasAnyRole("RECEPCIONISTA", "ADMIN")
 
                 //Moduilo: Citas
                 .requestMatchers("/api/citas/agendar").hasAnyRole("PACIENTE", "RECEPCIONISTA")
