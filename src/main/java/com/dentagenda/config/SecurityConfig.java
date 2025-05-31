@@ -50,28 +50,54 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/pacientes/registro").permitAll()              // habilita registro de pacientes
-                .requestMatchers("/api/citas/agendar").permitAll()                   // habilita agendar 
-                .requestMatchers("/api/citas/*/cancelar").permitAll()                // habilita cancelar citas
-                .requestMatchers("/api/citas/*/reprogramar").permitAll()             // habilita reprogramar citas
-                .requestMatchers("/api/citas/fecha").permitAll()                     // habilita obtener citas por fecha
-                .requestMatchers("/api/citas/estado").permitAll()                    // habilita obtener citas por estado
-                .requestMatchers("/api/citas/buscar-por-odontologo").permitAll()     // habilita buscar citas por odontologo
-                .requestMatchers("/api/citas/futuras/odontologo").permitAll()        // habilita obtener citas futuras por odontologo
-                .requestMatchers("/api/pacientes/crear-cuenta").permitAll()          // habilita crear cuenta de paciente
-                .requestMatchers("/api/pacientes/login").permitAll()                 // habilita login de pacientes
-                .requestMatchers("/api/odontologos/registro").permitAll()            // habilita registro de odontologos
-                .requestMatchers("/api/citas/odontologo/**").permitAll()             // habilita obtener historial de citas por odontologo
-                .requestMatchers("/api/citas/paciente/**").permitAll()               // habilita obtener historial de citas por paciente
-                .requestMatchers("/api/auth/login").permitAll()                      // habilita login de usuarios
-                .requestMatchers("/api/usuarios/crear").permitAll()                     // (solo mientras no implementamos autenticación de admin)
-                .requestMatchers("/api/recepcionistas/registro").permitAll()         // habilita registro de recepcionistas     
-                .requestMatchers("/api/tratamientos/registrar").permitAll()          // habilita registrar tratamientos
-                .requestMatchers("/api/tratamientos/paciente/**").permitAll()        // habilita obtener tratamientos por paciente
-                .requestMatchers("/api/bloqueos/registrar").permitAll()              // habilita registrar bloqueos de agenda
-                .requestMatchers("/api/citas/disponibilidad/**").permitAll()         // habilita obtener disponibilidad de citas
-                .requestMatchers(HttpMethod.DELETE, "/api/odontologos/eliminar/**").permitAll()
-                .requestMatchers(HttpMethod.DELETE, "/api/recepcionistas/eliminar/**").permitAll()
+                //Módulo: Usuarios / Autenticación
+                .requestMatchers("/api/auth/login").permitAll()
+                .requestMatchers("/api/usuarios/recuperar-password").permitAll()
+                .requestMatchers("/api/usuarios/restablecer-password").permitAll()
+                .requestMatchers("/api/usuarios/cambiar-password").hasAnyRole("PACIENTE", "ODONTOLOGO", "RECEPCIONISTA", "ADMIN")
+                .requestMatchers("/api/usuarios/perfil").hasAnyRole("PACIENTE", "ODONTOLOGO", "RECEPCIONISTA", "ADMIN")
+                
+                //Módulo: Pacientes
+                .requestMatchers("/api/pacientes/registro").hasRole("RECEPCIONISTA")
+                .requestMatchers("/api/pacientes/crear-cuenta").permitAll()
+                .requestMatchers("/api/usuarios/registro-paciente-web").permitAll()
+                .requestMatchers("/api/pacientes/{rut}").hasAnyRole("PACIENTE", "RECEPCIONISTA") // Validar rut en backend
+                .requestMatchers("/api/pacientes").hasAnyRole("RECEPCIONISTA", "ADMIN")
+
+                //Moduilo: Citas
+                .requestMatchers("/api/citas/agendar").hasAnyRole("PACIENTE", "RECEPCIONISTA")
+                .requestMatchers("/api/citas/{id}/reprogramar").hasAnyRole("PACIENTE", "RECEPCIONISTA")
+                .requestMatchers("/api/citas/{id}/cancelar").hasAnyRole("PACIENTE", "RECEPCIONISTA")
+                .requestMatchers("/api/citas/{id}/confirmar").hasRole("RECEPCIONISTA")
+                .requestMatchers("/api/citas/paciente/**").hasAnyRole("PACIENTE", "RECEPCIONISTA", "ODONTOLOGO")
+                .requestMatchers("/api/citas/odontologo/**").hasAnyRole("ODONTOLOGO", "RECEPCIONISTA")
+                .requestMatchers("/api/citas/fecha").hasAnyRole("RECEPCIONISTA", "ODONTOLOGO")
+                .requestMatchers("/api/citas/buscar-por-odontologo").hasAnyRole("RECEPCIONISTA", "PACIENTE")
+                .requestMatchers("/api/citas/disponibilidad/**").permitAll()
+                .requestMatchers("/api/citas/futuras/odontologo").hasRole("ODONTOLOGO")
+
+                //Módulo: Odontólogos
+                .requestMatchers("/api/odontologos/registro").hasRole("ADMIN")
+                .requestMatchers("/api/bloqueos/registrar").hasRole("ODONTOLOGO")
+                .requestMatchers("/api/odontologos/disponibilidad").permitAll()
+                .requestMatchers("/api/odontologos").permitAll()
+                .requestMatchers("/api/odontologos/agenda/fecha").hasRole("RECEPCIONISTA")
+
+                //Módulo: Recepcionistas
+                .requestMatchers("/api/recepcionistas/registro").hasRole("ADMIN")
+                .requestMatchers("/api/recepcionistas").hasRole("ADMIN")
+
+                //Modulo: Historial Clínico (Tratamientos)
+                .requestMatchers("/api/tratamientos/registrar").hasRole("ODONTOLOGO")
+                .requestMatchers("/api/tratamientos/paciente/**").hasAnyRole("PACIENTE", "ODONTOLOGO")
+                .requestMatchers("/api/tratamientos/cita/**").hasAnyRole("PACIENTE", "ODONTOLOGO")
+                .requestMatchers("/api/tratamientos/{id}/editar").hasRole("ODONTOLOGO")
+                
+                //Módulo: Extra Pruebas o Indefinidos
+                .requestMatchers(HttpMethod.DELETE, "/api/odontologos/eliminar/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/recepcionistas/eliminar/**").hasRole("ADMIN")
+
+                .requestMatchers("/api/**").authenticated() // Como base para el resto de las peticiones
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
