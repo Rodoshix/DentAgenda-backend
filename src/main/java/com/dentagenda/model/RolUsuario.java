@@ -4,5 +4,5 @@ public enum RolUsuario {
     PACIENTE,
     RECEPCIONISTA,
     ODONTOLOGO,
-    ADMIN
+    ADMINISTRADOR
 }
