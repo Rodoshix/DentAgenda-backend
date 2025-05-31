@@ -51,11 +51,14 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 //Módulo: Usuarios / Autenticación
-                .requestMatchers("/api/auth/login").permitAll()
-                .requestMatchers("/api/usuarios/recuperar-password").permitAll()
-                .requestMatchers("/api/usuarios/restablecer-password").permitAll()
-                .requestMatchers("/api/usuarios/cambiar-password").hasAnyRole("PACIENTE", "ODONTOLOGO", "RECEPCIONISTA", "ADMIN")
-                .requestMatchers("/api/usuarios/perfil").hasAnyRole("PACIENTE", "ODONTOLOGO", "RECEPCIONISTA", "ADMIN")
+                    // Autenticación
+                .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                    // Recuperación y restablecimiento
+                .requestMatchers(HttpMethod.POST, "/api/usuarios/recuperar-password").permitAll()
+                .requestMatchers(HttpMethod.PUT, "/api/usuarios/restablecer-password").permitAll()
+                    // Acciones con sesión activa
+                .requestMatchers(HttpMethod.PUT, "/api/usuarios/cambiar-password").hasAnyRole("PACIENTE", "ODONTOLOGO", "RECEPCIONISTA", "ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/usuarios/perfil").hasAnyRole("PACIENTE", "ODONTOLOGO", "RECEPCIONISTA", "ADMIN")
                 
                 //Módulo: Pacientes
                 .requestMatchers("/api/pacientes/registro").hasRole("RECEPCIONISTA")
