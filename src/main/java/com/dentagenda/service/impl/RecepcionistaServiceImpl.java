@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class RecepcionistaServiceImpl implements RecepcionistaService {
 
@@ -51,12 +53,13 @@ public class RecepcionistaServiceImpl implements RecepcionistaService {
     @Override
     public void eliminarRecepcionista(Long id) {
         Recepcionista recepcionista = recepcionistaRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Recepcionista no encontrada"));
-
+            .orElseThrow(() -> new RuntimeException("Recepcionista no encontrado"));
+        
         recepcionistaRepository.delete(recepcionista);
+    }
 
-        if (recepcionista.getUsuario() != null) {
-            usuarioRepository.delete(recepcionista.getUsuario());
-        }
+    @Override
+    public List<Recepcionista> listarTodos() {
+        return recepcionistaRepository.findAll();
     }
 }

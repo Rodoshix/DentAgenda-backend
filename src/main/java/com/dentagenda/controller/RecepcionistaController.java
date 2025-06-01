@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/recepcionistas")
 public class RecepcionistaController {
@@ -25,5 +27,10 @@ public class RecepcionistaController {
     public ResponseEntity<Void> eliminarRecepcionista(@PathVariable Long id) {
         recepcionistaService.eliminarRecepcionista(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Recepcionista>> listarTodos() {
+        return ResponseEntity.ok(recepcionistaService.listarTodos());
     }
 }

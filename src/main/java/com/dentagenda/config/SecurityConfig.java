@@ -90,14 +90,17 @@ public class SecurityConfig {
                     // Registro y eliminación de odontólogos (solo ADMIN)
                 .requestMatchers(HttpMethod.POST, "/api/odontologos/registro").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/odontologos/eliminar/*").hasRole("ADMIN")
-                // Listar odontólogos (público)
+                    // Listar odontólogos (público)
                 .requestMatchers(HttpMethod.GET, "/api/odontologos").permitAll()
+                    // Consultar agenda por odontólogo y fecha (solo recepcionista)
                 .requestMatchers(HttpMethod.GET, "/api/odontologos/agenda/fecha").hasRole("RECEPCIONISTA")
+                    // Registrar bloqueos de agenda (solo odontólogo)
                 .requestMatchers(HttpMethod.POST, "/api/bloqueos/registrar").hasRole("ODONTOLOGO")
 
                 //Módulo: Recepcionistas
-                .requestMatchers("/api/recepcionistas/registro").hasRole("ADMIN")
-                .requestMatchers("/api/recepcionistas").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/recepcionistas/registro").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/recepcionistas").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/recepcionistas/eliminar/*").hasRole("ADMIN")
 
                 //Modulo: Historial Clínico (Tratamientos)
                 .requestMatchers("/api/tratamientos/registrar").hasRole("ODONTOLOGO")
@@ -106,8 +109,6 @@ public class SecurityConfig {
                 .requestMatchers("/api/tratamientos/{id}/editar").hasRole("ODONTOLOGO")
                 
                 //Módulo: Extra Pruebas o Indefinidos
-                .requestMatchers(HttpMethod.DELETE, "/api/recepcionistas/eliminar/**").hasRole("ADMIN")
-
                 .requestMatchers("/api/**").authenticated() // Como base para el resto de las peticiones
                 .anyRequest().authenticated()
             )
