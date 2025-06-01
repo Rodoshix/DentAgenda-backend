@@ -22,6 +22,7 @@ com.dentagenda
 ├─── config                     # Configuración de seguridad
 ├─── controller                 # Controladores REST por módulo
 ├─── dto                        # Objetos de transferencia de datos
+├─── exception                  # Manejo centralizado de errores
 ├─── model                      # Entidades JPA
 ├─── repository                 # Repositorios JPA
 ├─── security                   # Filtro y utilidades JWT
@@ -57,7 +58,7 @@ VALUES (
 ```
 ---
 
-## ✅ Funcionalidades del Backend
+## Funcionalidades del Backend
 
 - Registro de pacientes, odontólogos y recepcionistas.
 - Inicio de sesión y gestión de contraseña.
