@@ -103,10 +103,14 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.DELETE, "/api/recepcionistas/eliminar/*").hasRole("ADMIN")
 
                 //Modulo: Historial Clínico (Tratamientos)
-                .requestMatchers("/api/tratamientos/registrar").hasRole("ODONTOLOGO")
-                .requestMatchers("/api/tratamientos/paciente/**").hasAnyRole("PACIENTE", "ODONTOLOGO")
-                .requestMatchers("/api/tratamientos/cita/**").hasAnyRole("PACIENTE", "ODONTOLOGO")
-                .requestMatchers("/api/tratamientos/{id}/editar").hasRole("ODONTOLOGO")
+                    // Registrar tratamiento (solo odontólogo)
+                .requestMatchers(HttpMethod.POST, "/api/tratamientos/registrar").hasRole("ODONTOLOGO")
+                    // Consultar historial por paciente (odontólogo o paciente)
+                .requestMatchers(HttpMethod.GET, "/api/tratamientos/paciente/**").hasAnyRole("ODONTOLOGO", "PACIENTE")
+                    // Consultar tratamiento asociado a una cita (odontólogo o paciente)
+                .requestMatchers(HttpMethod.GET, "/api/tratamientos/cita/**").hasAnyRole("ODONTOLOGO", "PACIENTE")
+                    // Editar tratamiento (solo el odontólogo que lo creó)
+                .requestMatchers(HttpMethod.PUT, "/api/tratamientos/*/editar").hasRole("ODONTOLOGO")
                 
                 //Módulo: Extra Pruebas o Indefinidos
                 .requestMatchers("/api/**").authenticated() // Como base para el resto de las peticiones
