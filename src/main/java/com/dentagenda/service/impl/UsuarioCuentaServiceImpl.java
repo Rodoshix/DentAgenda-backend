@@ -1,11 +1,17 @@
 package com.dentagenda.service.impl;
 
 import com.dentagenda.dto.CambiarPasswordDTO;
+import com.dentagenda.dto.EditarPerfilDTO;
 import com.dentagenda.dto.RecuperarPasswordDTO;
 import com.dentagenda.dto.RestablecerPasswordDTO;
 import com.dentagenda.model.Usuario;
+import com.dentagenda.repository.OdontologoRepository;
+import com.dentagenda.repository.PacienteRepository;
+import com.dentagenda.repository.RecepcionistaRepository;
 import com.dentagenda.repository.UsuarioRepository;
 import com.dentagenda.service.UsuarioCuentaService;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,6 +20,15 @@ import java.util.Optional;
 
 @Service
 public class UsuarioCuentaServiceImpl implements UsuarioCuentaService {
+
+    @Autowired
+    private PacienteRepository pacienteRepository;
+
+    @Autowired
+    private OdontologoRepository odontologoRepository;
+
+    @Autowired
+    private RecepcionistaRepository recepcionistaRepository;
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
@@ -70,5 +85,29 @@ public class UsuarioCuentaServiceImpl implements UsuarioCuentaService {
         Usuario usuario = usuarioOpt.get();
         usuario.setPassword(passwordEncoder.encode(dto.getNuevaPassword()));
         usuarioRepository.save(usuario);
+    }
+    
+    @Override
+    public void editarPerfil(String rut, EditarPerfilDTO dto) {
+        pacienteRepository.findByRut(rut).ifPresent(paciente -> {
+            paciente.setNombre(dto.getNombre());
+            paciente.setCorreo(dto.getCorreo());
+            paciente.setTelefono(dto.getTelefono());
+            pacienteRepository.save(paciente);
+        });
+
+        odontologoRepository.findByRut(rut).ifPresent(od -> {
+            od.setNombre(dto.getNombre());
+            od.setCorreo(dto.getCorreo());
+            od.setTelefono(dto.getTelefono());
+            odontologoRepository.save(od);
+        });
+
+        recepcionistaRepository.findByRut(rut).ifPresent(recep -> {
+            recep.setNombre(dto.getNombre());
+            recep.setCorreo(dto.getCorreo());
+            recep.setTelefono(dto.getTelefono());
+            recepcionistaRepository.save(recep);
+        });
     }
 }

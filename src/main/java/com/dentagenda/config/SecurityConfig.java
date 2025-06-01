@@ -59,6 +59,7 @@ public class SecurityConfig {
                     // Acciones con sesión activa
                 .requestMatchers(HttpMethod.PUT, "/api/usuarios/cambiar-password").hasAnyRole("PACIENTE", "ODONTOLOGO", "RECEPCIONISTA", "ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/usuarios/perfil").hasAnyRole("PACIENTE", "ODONTOLOGO", "RECEPCIONISTA", "ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/usuarios/perfil").hasAnyRole("PACIENTE", "ODONTOLOGO", "RECEPCIONISTA", "ADMIN")
                 
                 //Módulo: Pacientes
                     // Registro del paciente por parte de recepcionista

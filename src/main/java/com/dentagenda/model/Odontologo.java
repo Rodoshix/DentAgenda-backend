@@ -28,6 +28,10 @@ public class Odontologo {
     @Column(unique = true)
     private String correo;
 
+    @NotBlank(message = "El teléfono es obligatorio")
+    private String telefono;
+
+    @NotBlank(message = "La especialidad es obligatoria")
     private String especialidad;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)

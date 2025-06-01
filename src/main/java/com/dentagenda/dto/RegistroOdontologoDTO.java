@@ -19,6 +19,9 @@ public class RegistroOdontologoDTO {
     @NotBlank(message = "El correo es obligatorio")
     private String correo;
 
+    @NotBlank(message = "El teléfono es obligatorio")
+    private String telefono;
+
     @NotBlank(message = "La especialidad es obligatoria")
     private String especialidad;
 

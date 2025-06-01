@@ -1,6 +1,7 @@
 package com.dentagenda.controller;
 
 import com.dentagenda.dto.CambiarPasswordDTO;
+import com.dentagenda.dto.EditarPerfilDTO;
 import com.dentagenda.dto.RecuperarPasswordDTO;
 import com.dentagenda.dto.RestablecerPasswordDTO;
 import com.dentagenda.model.Usuario;
@@ -48,5 +49,13 @@ public class UsuarioController {
     public ResponseEntity<?> restablecerPassword(@RequestBody @Valid RestablecerPasswordDTO dto) {
         cuentaService.restablecerPassword(dto);
         return ResponseEntity.ok("Contraseña restablecida correctamente");
+    }
+
+    @PutMapping("/perfil")
+    public ResponseEntity<?> editarPerfil(
+            @Valid @RequestBody EditarPerfilDTO dto,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        cuentaService.editarPerfil(userDetails.getUsername(), dto);
+        return ResponseEntity.ok("Perfil actualizado exitosamente.");
     }
 } 

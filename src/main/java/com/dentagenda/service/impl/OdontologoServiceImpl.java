@@ -35,6 +35,7 @@ public class OdontologoServiceImpl implements OdontologoService {
         odontologo.setNombre(dto.getNombre());
         odontologo.setRut(dto.getRut());
         odontologo.setCorreo(dto.getCorreo());
+        odontologo.setTelefono(dto.getTelefono());
         odontologo.setEspecialidad(dto.getEspecialidad());
         odontologo.setUsuario(usuario); // aquí está la magia
 
