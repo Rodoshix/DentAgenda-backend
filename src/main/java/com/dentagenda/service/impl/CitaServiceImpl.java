@@ -19,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -141,40 +142,114 @@ public class CitaServiceImpl implements CitaService {
     }
 
     @Override
-    public List<Cita> obtenerCitasPorPaciente(Long pacienteId) {
+    public List<Cita> obtenerCitasPorPaciente(Long pacienteId, UserDetails userDetails) {
         Paciente paciente = pacienteRepository.findById(pacienteId)
                 .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+
+        String rutUsuario = userDetails.getUsername(); // El RUT del usuario autenticado
+        String rol = userDetails.getAuthorities().iterator().next().getAuthority(); // Ej: ROLE_PACIENTE
+
+        // Si es paciente: solo puede ver su propio historial
+        if ("ROLE_PACIENTE".equals(rol)) {
+            if (!paciente.getRut().equals(rutUsuario)) {
+                throw new RuntimeException("No tienes permiso para ver citas de otro paciente.");
+            }
+        }
+
+        // Si es recepcionista: acceso total
+        // Si el día de mañana hay más roles, puedes manejar lógica extra aquí
 
         return citaRepository.findByPaciente(paciente);
     }
 
     @Override
-    public List<Cita> buscarCitasPorFecha(LocalDateTime desde, LocalDateTime hasta) {
-        return citaRepository.findByFechaHoraBetween(desde, hasta);
+    public List<Cita> buscarCitasPorFecha(LocalDateTime desde, LocalDateTime hasta, UserDetails userDetails) {
+        String rol = userDetails.getAuthorities().iterator().next().getAuthority();
+    
+        if ("ROLE_RECEPCIONISTA".equals(rol)) {
+            return citaRepository.findByFechaHoraBetween(desde, hasta);
+        }
+    
+        if ("ROLE_ODONTOLOGO".equals(rol)) {
+            String rut = userDetails.getUsername();
+            Odontologo odontologo = odontologoRepository.findByRut(rut)
+                    .orElseThrow(() -> new RuntimeException("Odontólogo no encontrado"));
+            return citaRepository.findByFechaHoraBetweenAndOdontologo(desde, hasta, odontologo);
+        }
+    
+        throw new RuntimeException("No tienes permiso para ver citas por fecha.");
     }
 
     @Override
-    public List<Cita> buscarCitasPorEstado(EstadoCita estado) {
-        return citaRepository.findByEstado(estado);
+    public List<Cita> buscarCitasPorEstado(EstadoCita estado, Long odontologoId, UserDetails userDetails) {
+        String rol = userDetails.getAuthorities().iterator().next().getAuthority();
+    
+        if ("ROLE_RECEPCIONISTA".equals(rol)) {
+            if (odontologoId != null) {
+                Odontologo od = odontologoRepository.findById(odontologoId)
+                        .orElseThrow(() -> new RuntimeException("Odontólogo no encontrado"));
+                return citaRepository.findByEstadoAndOdontologo(estado, od);
+            } else {
+                return citaRepository.findByEstado(estado);
+            }
+        }
+    
+        if ("ROLE_ODONTOLOGO".equals(rol)) {
+            String rut = userDetails.getUsername();
+            Odontologo od = odontologoRepository.findByRut(rut)
+                    .orElseThrow(() -> new RuntimeException("Odontólogo no encontrado"));
+            return citaRepository.findByEstadoAndOdontologo(estado, od);
+        }
+    
+        throw new RuntimeException("No tienes permiso para esta acción.");
     }
 
     @Override
-    public Page<Cita> buscarCitasPorOdontologo(String nombreOdontologo, Pageable pageable) {
-        Odontologo odontologo = odontologoRepository.findByNombreIgnoreCase(nombreOdontologo)
-                .orElseThrow(() -> new RuntimeException("Odontólogo no encontrado"));
-        return citaRepository.findByOdontologo(odontologo, pageable);
+    public Page<Cita> buscarCitasPorOdontologo(String nombre, Pageable pageable, UserDetails userDetails) {
+        String rutUsuario = userDetails.getUsername();
+        String rol = userDetails.getAuthorities().iterator().next().getAuthority();
+    
+        if ("ROLE_ODONTOLOGO".equals(rol)) {
+            Odontologo odontologo = odontologoRepository.findByRut(rutUsuario)
+                    .orElseThrow(() -> new RuntimeException("Odontólogo no encontrado"));
+            return citaRepository.findByOdontologo(odontologo, pageable);
+        }
+    
+        if ("ROLE_RECEPCIONISTA".equals(rol)) {
+            if (nombre == null || nombre.isBlank()) {
+                throw new RuntimeException("Debe proporcionar el nombre del odontólogo.");
+            }
+            Odontologo odontologo = odontologoRepository.findByNombreIgnoreCase(nombre)
+                    .orElseThrow(() -> new RuntimeException("Odontólogo no encontrado"));
+            return citaRepository.findByOdontologo(odontologo, pageable);
+        }
+    
+        throw new RuntimeException("No tienes permiso para realizar esta acción.");
     }
 
     @Override
-    public List<Cita> obtenerCitasFuturasPorOdontologo(String nombreOdontologo) {
-        Odontologo odontologo = odontologoRepository.findByNombreIgnoreCase(nombreOdontologo)
+    public List<Cita> obtenerCitasFuturasPorOdontologo(UserDetails userDetails) {
+        String rut = userDetails.getUsername();
+        Odontologo odontologo = odontologoRepository.findByRut(rut)
                 .orElseThrow(() -> new RuntimeException("Odontólogo no encontrado"));
 
         return citaRepository.findByFechaHoraAfterAndOdontologo(LocalDateTime.now(), odontologo);
     }
 
     @Override
-    public List<Cita> obtenerHistorialPorOdontologo(Long odontologoId) {
+    public List<Cita> obtenerHistorialPorOdontologo(Long odontologoId, UserDetails userDetails) {
+        Odontologo odontologo = odontologoRepository.findById(odontologoId)
+                .orElseThrow(() -> new RuntimeException("Odontólogo no encontrado"));
+
+        String rutUsuario = userDetails.getUsername(); // RUT del usuario autenticado
+        String rol = userDetails.getAuthorities().iterator().next().getAuthority(); // Ej: ROLE_ODONTOLOGO
+
+        if ("ROLE_ODONTOLOGO".equals(rol)) {
+            if (!odontologo.getRut().equals(rutUsuario)) {
+                throw new RuntimeException("No tienes permiso para ver el historial de otro odontólogo.");
+            }
+        }
+
         return citaRepository.findByOdontologo_Id(odontologoId);
     }
 

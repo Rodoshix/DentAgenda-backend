@@ -71,16 +71,20 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/pacientes").hasAnyRole("RECEPCIONISTA", "ADMIN")
 
                 //Moduilo: Citas
-                .requestMatchers("/api/citas/agendar").hasAnyRole("PACIENTE", "RECEPCIONISTA")
-                .requestMatchers("/api/citas/{id}/reprogramar").hasAnyRole("PACIENTE", "RECEPCIONISTA")
-                .requestMatchers("/api/citas/{id}/cancelar").hasAnyRole("PACIENTE", "RECEPCIONISTA")
-                .requestMatchers("/api/citas/{id}/confirmar").hasRole("RECEPCIONISTA")
-                .requestMatchers("/api/citas/paciente/**").hasAnyRole("PACIENTE", "RECEPCIONISTA", "ODONTOLOGO")
-                .requestMatchers("/api/citas/odontologo/**").hasAnyRole("ODONTOLOGO", "RECEPCIONISTA")
-                .requestMatchers("/api/citas/fecha").hasAnyRole("RECEPCIONISTA", "ODONTOLOGO")
-                .requestMatchers("/api/citas/buscar-por-odontologo").hasAnyRole("RECEPCIONISTA", "PACIENTE")
-                .requestMatchers("/api/citas/disponibilidad/**").permitAll()
-                .requestMatchers("/api/citas/futuras/odontologo").hasRole("ODONTOLOGO")
+                    // Crear, cancelar, reprogramar y confirmar citas  
+                .requestMatchers(HttpMethod.POST, "/api/citas/agendar").hasAnyRole("PACIENTE", "RECEPCIONISTA")
+                .requestMatchers(HttpMethod.PUT, "/api/citas/{id}/cancelar").hasAnyRole("PACIENTE", "RECEPCIONISTA")
+                .requestMatchers(HttpMethod.PUT, "/api/citas/{id}/reprogramar").hasAnyRole("PACIENTE", "RECEPCIONISTA")
+                .requestMatchers(HttpMethod.PUT, "/api/citas/confirmar-asistencia/{id}").hasRole("RECEPCIONISTA")     
+                    // Historial de citas por paciente u odontólogo
+                .requestMatchers(HttpMethod.GET, "/api/citas/paciente/**").hasAnyRole("PACIENTE", "RECEPCIONISTA")
+                .requestMatchers(HttpMethod.GET, "/api/citas/odontologo/**").hasAnyRole("ODONTOLOGO", "RECEPCIONISTA")
+                .requestMatchers(HttpMethod.GET, "/api/citas/futuras/odontologo").hasRole("ODONTOLOGO")
+                    // Buscar citas por odontólogo, fecha y estado
+                .requestMatchers(HttpMethod.GET, "/api/citas/estado").hasAnyRole("ODONTOLOGO", "RECEPCIONISTA")
+                .requestMatchers(HttpMethod.GET, "/api/citas/fecha").hasAnyRole("ODONTOLOGO", "RECEPCIONISTA")
+                .requestMatchers(HttpMethod.GET, "/api/citas/buscar-por-odontologo").hasAnyRole("ODONTOLOGO", "RECEPCIONISTA")
+                .requestMatchers(HttpMethod.GET, "/api/citas/disponibilidad").permitAll()
 
                 //Módulo: Odontólogos
                 .requestMatchers("/api/odontologos/registro").hasRole("ADMIN")
