@@ -10,4 +10,5 @@ public interface OdontologoRepository extends JpaRepository<Odontologo, Long> {
     Optional<Odontologo> findByRut(String rut);
 
     Optional<Odontologo> findByNombreIgnoreCase(String nombre);
+
 }

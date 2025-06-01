@@ -320,4 +320,15 @@ public class CitaServiceImpl implements CitaService {
         cita.setEstado(EstadoCita.CONFIRMADA);
         return citaRepository.save(cita);
     }
+
+    @Override
+    public List<Cita> obtenerCitasPorFechaYOdontologo(LocalDate fecha, Long odontologoId) {
+        Odontologo odontologo = odontologoRepository.findById(odontologoId)
+                .orElseThrow(() -> new RuntimeException("Odontólogo no encontrado"));
+
+        LocalDateTime desde = fecha.atTime(0, 0);
+        LocalDateTime hasta = fecha.atTime(23, 59);
+
+        return citaRepository.findByOdontologoAndFechaHoraBetween(odontologo, desde, hasta);
+    }
 }

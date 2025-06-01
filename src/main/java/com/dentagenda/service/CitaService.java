@@ -27,4 +27,5 @@ public interface CitaService {
     Page<Cita> buscarCitasPorOdontologo(String nombre, Pageable pageable, UserDetails userDetails);
     List<Cita> buscarCitasPorFecha(LocalDateTime desde, LocalDateTime hasta, UserDetails userDetails);
     List<Cita> buscarCitasPorEstado(EstadoCita estado, Long odontologoId, UserDetails userDetails);
+    List<Cita> obtenerCitasPorFechaYOdontologo(LocalDate fecha, Long odontologoId);
 }

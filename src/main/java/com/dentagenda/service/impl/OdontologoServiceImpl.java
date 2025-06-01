@@ -5,12 +5,13 @@ import com.dentagenda.model.Odontologo;
 import com.dentagenda.model.RolUsuario;
 import com.dentagenda.model.Usuario;
 import com.dentagenda.repository.OdontologoRepository;
-import com.dentagenda.repository.UsuarioRepository;
 import com.dentagenda.service.OdontologoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+
+import java.util.List;
 
 @Service
 public class OdontologoServiceImpl implements OdontologoService {
@@ -20,10 +21,6 @@ public class OdontologoServiceImpl implements OdontologoService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
 
     @Override
     public Odontologo registrarOdontologo(RegistroOdontologoDTO dto) {
@@ -47,12 +44,13 @@ public class OdontologoServiceImpl implements OdontologoService {
     @Override
     public void eliminarOdontologo(Long id) {
         Odontologo odontologo = odontologoRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Odontólogo no encontrado"));
-
+                .orElseThrow(() -> new RuntimeException("Odontólogo no encontrado"));
+    
         odontologoRepository.delete(odontologo);
+    }
 
-        if (odontologo.getUsuario() != null) {
-            usuarioRepository.delete(odontologo.getUsuario());
-        }
+    @Override
+    public List<Odontologo> listarTodos() {
+        return odontologoRepository.findAll();
     }
 }
