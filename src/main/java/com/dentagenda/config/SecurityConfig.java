@@ -57,9 +57,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/usuarios/recuperar-password").permitAll()
                 .requestMatchers(HttpMethod.PUT, "/api/usuarios/restablecer-password").permitAll()
                     // Acciones con sesión activa
-                .requestMatchers(HttpMethod.PUT, "/api/usuarios/cambiar-password").hasAnyRole("PACIENTE", "ODONTOLOGO", "RECEPCIONISTA", "ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/usuarios/perfil").hasAnyRole("PACIENTE", "ODONTOLOGO", "RECEPCIONISTA", "ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/usuarios/perfil").hasAnyRole("PACIENTE", "ODONTOLOGO", "RECEPCIONISTA", "ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/usuarios/cambiar-password").hasAnyRole("PACIENTE", "ODONTOLOGO", "RECEPCIONISTA", "ADMINISTRADOR")
+                .requestMatchers(HttpMethod.GET, "/api/usuarios/perfil").hasAnyRole("PACIENTE", "ODONTOLOGO", "RECEPCIONISTA", "ADMINISTRADOR")
+                .requestMatchers(HttpMethod.PUT, "/api/usuarios/perfil").hasAnyRole("PACIENTE", "ODONTOLOGO", "RECEPCIONISTA", "ADMINISTRADOR")
                 
                 //Módulo: Pacientes
                     // Registro del paciente por parte de recepcionista
@@ -69,7 +69,7 @@ public class SecurityConfig {
                     // Consultar paciente por RUT
                 .requestMatchers(HttpMethod.GET, "/api/pacientes/**").hasAnyRole("RECEPCIONISTA", "ODONTOLOGO")
                     // Listar todos los pacientes
-                .requestMatchers(HttpMethod.GET, "/api/pacientes").hasAnyRole("RECEPCIONISTA", "ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/pacientes").hasAnyRole("RECEPCIONISTA", "ADMINISTRADOR")
 
                 //Moduilo: Citas
                     // Crear, cancelar, reprogramar y confirmar citas  
@@ -89,8 +89,8 @@ public class SecurityConfig {
 
                 //Módulo: Odontólogos
                     // Registro y eliminación de odontólogos (solo ADMIN)
-                .requestMatchers(HttpMethod.POST, "/api/odontologos/registro").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/odontologos/eliminar/*").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/odontologos/registro").hasRole("ADMINISTRADOR")
+                .requestMatchers(HttpMethod.DELETE, "/api/odontologos/eliminar/*").hasRole("ADMINISTRADOR")
                     // Listar odontólogos (público)
                 .requestMatchers(HttpMethod.GET, "/api/odontologos").permitAll()
                     // Consultar agenda por odontólogo y fecha (solo recepcionista)
@@ -99,9 +99,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/bloqueos/registrar").hasRole("ODONTOLOGO")
 
                 //Módulo: Recepcionistas
-                .requestMatchers(HttpMethod.POST, "/api/recepcionistas/registro").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/recepcionistas").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/recepcionistas/eliminar/*").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/recepcionistas/registro").hasRole("ADMINISTRADOR")
+                .requestMatchers(HttpMethod.GET, "/api/recepcionistas").hasRole("ADMINISTRADOR")
+                .requestMatchers(HttpMethod.DELETE, "/api/recepcionistas/eliminar/*").hasRole("ADMINISTRADOR")
 
                 //Modulo: Historial Clínico (Tratamientos)
                     // Registrar tratamiento (solo odontólogo)
