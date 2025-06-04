@@ -17,7 +17,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.security.core.userdetails.UserDetailsService;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -48,6 +51,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            .cors(cors -> cors
+                .configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowedOrigins(List.of("http://localhost:5173")); // donde corre tu frontend
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    config.setAllowedHeaders(List.of("*"));
+                    config.setAllowCredentials(true);
+                    return config;
+                })
+            )
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 //Módulo: Usuarios / Autenticación
@@ -114,7 +127,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/api/tratamientos/*/editar").hasRole("ODONTOLOGO")
                 
                 //Módulo: Extra Pruebas o Indefinidos
-                .requestMatchers("/api/**").authenticated() // Como base para el resto de las peticiones
+                .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

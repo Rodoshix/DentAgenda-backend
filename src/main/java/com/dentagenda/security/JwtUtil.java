@@ -16,16 +16,27 @@ public class JwtUtil {
     private static final String SECRET = "12345678901234567890123456789012"; 
 
     // Tiempo de expiración (ej: 1 hora)
-    private static final long EXPIRATION_TIME_MS = 3600000;
+    private static final long ACCESS_TOKEN_EXPIRATION_MS = 1000 * 60 * 15; // 15 minutos
+
+    private static final long REFRESH_TOKEN_EXPIRATION_MS = 1000L * 60 * 60 * 24 * 7; // 7 días
 
     private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
-    public String generateToken(String rut, String role) {
+    public String generateAccessToken(String rut, String role) {
         return Jwts.builder()
                 .setSubject(rut)
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME_MS))
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_MS))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateRefreshToken(String rut) {
+        return Jwts.builder()
+                .setSubject(rut)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_MS))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }

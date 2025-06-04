@@ -1,6 +1,7 @@
 package com.dentagenda.controller;
 
 import com.dentagenda.dto.AuthRequest;
+import com.dentagenda.dto.RefreshRequestDTO;
 import com.dentagenda.model.Usuario;
 import com.dentagenda.repository.UsuarioRepository;
 import com.dentagenda.security.JwtUtil;
@@ -34,13 +35,46 @@ public class AuthController {
             return ResponseEntity.status(403).body("Contraseña inválida");
         }
 
-        String token = jwtUtil.generateToken(usuario.getRut(), usuario.getRol().name());
+        String accessToken = jwtUtil.generateAccessToken(usuario.getRut(), usuario.getRol().name());
+        String refreshToken = jwtUtil.generateRefreshToken(usuario.getRut());
 
         Map<String, Object> response = new HashMap<>();
-        response.put("token", token);
+        response.put("access_token", accessToken);
+        response.put("refresh_token", refreshToken);
         response.put("rut", usuario.getRut());
         response.put("rol", usuario.getRol().name());
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@RequestBody RefreshRequestDTO request) {
+        System.out.println("🔁 Intentando refrescar token: " + request.getRefreshToken());
+        String refreshToken = request.getRefreshToken();
+
+        try {
+            // Validar token y extraer rut
+            String rut = jwtUtil.extractUsername(refreshToken);
+
+            // Validar existencia del usuario
+            Usuario usuario = usuarioRepository.findByRut(rut)
+                    .orElseThrow(() -> new RuntimeException("Usuario no existe"));
+
+            // Verificar que el token esté vigente
+            if (!jwtUtil.validateToken(refreshToken)) {
+                return ResponseEntity.status(403).body("Refresh token expirado o inválido");
+            }
+
+            // Generar nuevo access token
+            String newAccessToken = jwtUtil.generateAccessToken(rut, usuario.getRol().name());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("access_token", newAccessToken);
+
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(403).body("Token inválido");
+        }
     }
 }
