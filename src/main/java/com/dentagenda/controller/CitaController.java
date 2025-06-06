@@ -1,6 +1,7 @@
 package com.dentagenda.controller;
 
 import com.dentagenda.dto.AgendarCitaDTO;
+import com.dentagenda.dto.CitaCalendarioDTO;
 import com.dentagenda.dto.OdontologoDisponibilidadDTO;
 import com.dentagenda.dto.ReprogramarCitaDTO;
 import com.dentagenda.model.Cita;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -30,8 +32,13 @@ public class CitaController {
     private CitaService citaService;
 
     @PostMapping("/agendar")
-    public ResponseEntity<Cita> agendarCita(@Valid @RequestBody AgendarCitaDTO dto) {
-        return ResponseEntity.ok(citaService.agendarCita(dto));
+    @PreAuthorize("hasRole('PACIENTE')")
+    public ResponseEntity<Cita> agendarCita(
+        @Valid @RequestBody AgendarCitaDTO dto,
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        String rut = userDetails.getUsername();
+        return ResponseEntity.ok(citaService.agendarCita(dto, rut));
     }
     
     @PutMapping("/{id}/cancelar")
@@ -44,11 +51,11 @@ public class CitaController {
         return ResponseEntity.ok(citaService.reprogramarCita(id, dto));
     }
 
-    @GetMapping("/paciente/{id}")
-    public ResponseEntity<List<Cita>> obtenerHistorialPaciente(
-            @PathVariable Long id,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        return ResponseEntity.ok(citaService.obtenerCitasPorPaciente(id, userDetails));
+    @GetMapping("/mis-citas")
+    @PreAuthorize("hasRole('PACIENTE')")
+    public ResponseEntity<List<CitaCalendarioDTO>> citasDelPacienteAutenticado(@AuthenticationPrincipal UserDetails userDetails) {
+        String rut = userDetails.getUsername();
+        return ResponseEntity.ok(citaService.obtenerCitasParaCalendarioPorRut(rut));
     }
 
     @GetMapping("/fecha")

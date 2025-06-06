@@ -110,6 +110,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/odontologos/agenda/fecha").hasRole("RECEPCIONISTA")
                     // Registrar bloqueos de agenda (solo odontólogo)
                 .requestMatchers(HttpMethod.POST, "/api/bloqueos/registrar").hasRole("ODONTOLOGO")
+                    // Consultar disponibilidad de agenda por odontólogo (paciente)
+                .requestMatchers(HttpMethod.GET, "/api/odontologos/*/disponibilidad").hasAnyRole("RECEPCIONISTA","PACIENTE")
 
                 //Módulo: Recepcionistas
                 .requestMatchers(HttpMethod.POST, "/api/recepcionistas/registro").hasRole("ADMINISTRADOR")

@@ -15,9 +15,6 @@ public class AgendarCitaDTO {
     @Future(message = "La cita debe ser en el futuro")
     private LocalDateTime fechaHora;
 
-    @NotNull(message = "Debe especificar el ID del paciente")
-    private Long pacienteId;
-
     @NotNull(message = "Debe especificar el ID del odontólogo")
     private Long odontologoId;
 
