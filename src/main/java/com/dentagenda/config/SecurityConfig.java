@@ -80,7 +80,7 @@ public class SecurityConfig {
                     // Registro o activación de cuenta web por parte del paciente
                 .requestMatchers(HttpMethod.POST, "/api/pacientes/crear-cuenta").permitAll()
                     // Consultar paciente por RUT
-                .requestMatchers(HttpMethod.GET, "/api/pacientes/**").hasAnyRole("RECEPCIONISTA", "ODONTOLOGO")
+                .requestMatchers(HttpMethod.GET, "/api/pacientes/**").permitAll()
                     // Listar todos los pacientes
                 .requestMatchers(HttpMethod.GET, "/api/pacientes").hasAnyRole("RECEPCIONISTA", "ADMINISTRADOR")
 

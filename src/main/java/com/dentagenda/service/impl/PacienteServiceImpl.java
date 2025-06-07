@@ -66,6 +66,7 @@ public class PacienteServiceImpl implements PacienteService {
 
             Usuario usuario = Usuario.builder()
                     .rut(dto.getRut())
+                    .nombre(dto.getNombre())
                     .password(passwordEncoder.encode(dto.getPassword()))
                     .rol(RolUsuario.PACIENTE)
                     .build();
@@ -82,6 +83,7 @@ public class PacienteServiceImpl implements PacienteService {
 
         Usuario nuevoUsuario = Usuario.builder()
                 .rut(dto.getRut())
+                .nombre(dto.getNombre())
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .rol(RolUsuario.PACIENTE)
                 .build();
