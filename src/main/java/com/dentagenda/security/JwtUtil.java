@@ -8,6 +8,7 @@ import io.jsonwebtoken.Claims;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtUtil {
@@ -26,6 +27,7 @@ public class JwtUtil {
         return Jwts.builder()
                 .setSubject(rut)
                 .claim("role", role)
+                .claim("authorities", List.of("ROLE_" + role)) // ← CLAVE
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_MS))
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -49,7 +51,8 @@ public class JwtUtil {
     //Método para validar el token (por expiración)
     public boolean validateToken(String token) {
         try {
-            return !extractAllClaims(token).getExpiration().before(new Date());
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return true;
         } catch (Exception e) {
             return false;
         }
@@ -65,5 +68,11 @@ public class JwtUtil {
 
     public String extractRol(String token) {
         return extractAllClaims(token).get("role", String.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<String> extractAuthorities(String token) {
+        Claims claims = extractAllClaims(token);
+        return (List<String>) claims.get("authorities");
     }
 }

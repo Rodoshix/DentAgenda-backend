@@ -38,10 +38,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 if (jwtUtil.validateToken(jwt)) {
-                    String rol = jwtUtil.extractRol(jwt); 
-                    User principal = new User(username, "", 
-                        List.of(new SimpleGrantedAuthority("ROLE_" + rol))
-                    );
+                    // 🔽 AQUÍ extraemos directamente el claim authorities del token
+                    List<String> authorities = jwtUtil.extractAuthorities(jwt);
+
+                    List<SimpleGrantedAuthority> grantedAuthorities = authorities.stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .toList();
+
+                    User principal = new User(username, "", grantedAuthorities);
+
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                             principal, null, principal.getAuthorities());
                     auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

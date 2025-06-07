@@ -1,7 +1,7 @@
 package com.dentagenda.controller;
 
 import com.dentagenda.dto.AgendarCitaDTO;
-import com.dentagenda.dto.CitaCalendarioDTO;
+import com.dentagenda.dto.CitaHistorialDTO;
 import com.dentagenda.dto.OdontologoDisponibilidadDTO;
 import com.dentagenda.dto.ReprogramarCitaDTO;
 import com.dentagenda.model.Cita;
@@ -53,9 +53,9 @@ public class CitaController {
 
     @GetMapping("/mis-citas")
     @PreAuthorize("hasRole('PACIENTE')")
-    public ResponseEntity<List<CitaCalendarioDTO>> citasDelPacienteAutenticado(@AuthenticationPrincipal UserDetails userDetails) {
-        String rut = userDetails.getUsername();
-        return ResponseEntity.ok(citaService.obtenerCitasParaCalendarioPorRut(rut));
+    public ResponseEntity<List<CitaHistorialDTO>> historialCitas(@AuthenticationPrincipal UserDetails userDetails) {
+        String rut = userDetails.getUsername(); 
+        return ResponseEntity.ok(citaService.obtenerHistorialCitasPaciente(rut));
     }
 
     @GetMapping("/fecha")

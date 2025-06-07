@@ -33,4 +33,7 @@ public class Cita {
     private Odontologo odontologo;
 
     private String motivo; // motivo u observación
+
+    @Column(length = 1000)
+    private String observacion;
 }

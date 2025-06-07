@@ -2,6 +2,7 @@ package com.dentagenda.service.impl;
 
 import com.dentagenda.dto.AgendarCitaDTO;
 import com.dentagenda.dto.CitaCalendarioDTO;
+import com.dentagenda.dto.CitaHistorialDTO;
 import com.dentagenda.dto.OdontologoDisponibilidadDTO;
 import com.dentagenda.dto.ReprogramarCitaDTO;
 import com.dentagenda.model.BloqueoAgenda;
@@ -9,10 +10,12 @@ import com.dentagenda.model.Cita;
 import com.dentagenda.model.EstadoCita;
 import com.dentagenda.model.Odontologo;
 import com.dentagenda.model.Paciente;
+import com.dentagenda.model.Tratamiento;
 import com.dentagenda.repository.BloqueoAgendaRepository;
 import com.dentagenda.repository.CitaRepository;
 import com.dentagenda.repository.OdontologoRepository;
 import com.dentagenda.repository.PacienteRepository;
+import com.dentagenda.repository.TratamientoRepository;
 import com.dentagenda.service.CitaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,6 +46,9 @@ public class CitaServiceImpl implements CitaService {
     @Autowired
     private BloqueoAgendaRepository bloqueoAgendaRepository;
 
+    @Autowired
+    private TratamientoRepository tratamientoRepository;
+
     @Override
     public Cita agendarCita(AgendarCitaDTO dto, String rutPaciente) {
         if (dto.getFechaHora().isBefore(LocalDateTime.now())) {
@@ -66,6 +72,13 @@ public class CitaServiceImpl implements CitaService {
         cita.setOdontologo(odontologo);
         cita.setEstado(EstadoCita.PENDIENTE);
         cita.setMotivo(dto.getMotivo());
+
+        boolean yaExiste = citaRepository.existsByFechaHoraAndOdontologoAndEstadoNot(
+            fechaHoraRedondeada, odontologo, EstadoCita.CANCELADA
+        );
+        if (yaExiste) {
+            throw new RuntimeException("El odontólogo ya tiene una cita en esa fecha/hora");
+        }
 
         return citaRepository.save(cita);
     }
@@ -336,4 +349,32 @@ public class CitaServiceImpl implements CitaService {
     
         return horas;
     }
+
+    @Override
+    public List<CitaHistorialDTO> obtenerHistorialCitasPaciente(String rutPaciente) {
+        Paciente paciente = pacienteRepository.findByUsuarioRut(rutPaciente)
+            .orElseThrow(() -> new RuntimeException("Paciente no encontrado"));
+
+        List<Cita> citas = citaRepository.findByPaciente(paciente);
+
+            return citas.stream().map(cita -> {
+        CitaHistorialDTO dto = new CitaHistorialDTO();
+        dto.setId(cita.getId());
+        dto.setFechaHora(cita.getFechaHora());
+        dto.setEstado(cita.getEstado().name());
+        dto.setObservacion(cita.getObservacion());
+        dto.setOdontologoNombre(
+        cita.getOdontologo() != null ? cita.getOdontologo().getNombre() : "N/A"
+        );
+
+        // AQUÍ
+        Tratamiento tratamiento = tratamientoRepository.findByCita(cita).orElse(null);
+        dto.setTratamiento(tratamiento != null
+            ? tratamiento.getProcedimiento() + " - " + tratamiento.getDiagnostico()
+            : null);
+
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
 }

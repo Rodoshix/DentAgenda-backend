@@ -11,4 +11,5 @@ public interface TratamientoRepository extends JpaRepository<Tratamiento, Long> 
     List<Tratamiento> findByPacienteRut(String rut);
     boolean existsByCita(Cita cita);
     Optional<Tratamiento> findByCita_Id(Long citaId);
+    Optional<Tratamiento> findByCita(Cita cita);
 }

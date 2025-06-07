@@ -90,6 +90,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PUT, "/api/citas/*/cancelar").hasAnyRole("PACIENTE", "RECEPCIONISTA")
                 .requestMatchers(HttpMethod.PUT, "/api/citas/*/reprogramar").hasAnyRole("PACIENTE", "RECEPCIONISTA")
                 .requestMatchers(HttpMethod.PUT, "/api/citas/confirmar-asistencia/*").hasRole("RECEPCIONISTA")     
+                .requestMatchers(HttpMethod.GET,"/api/citas/mis-citas").hasRole("PACIENTE")
                     // Historial de citas por paciente u odontólogo
                 .requestMatchers(HttpMethod.GET, "/api/citas/paciente/**").hasAnyRole("PACIENTE", "RECEPCIONISTA")
                 .requestMatchers(HttpMethod.GET, "/api/citas/odontologo/**").hasAnyRole("ODONTOLOGO", "RECEPCIONISTA")
