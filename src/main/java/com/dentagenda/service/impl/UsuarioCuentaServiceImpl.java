@@ -89,20 +89,27 @@ public class UsuarioCuentaServiceImpl implements UsuarioCuentaService {
     
     @Override
     public void editarPerfil(String rut, EditarPerfilDTO dto) {
+        Usuario usuario = usuarioRepository.findByRut(rut)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        
+        usuario.setNombre(dto.getNombre());
+        usuarioRepository.save(usuario); // 👈 esto es lo que faltaba
+    
+        // ✅ 2. Actualizar en la entidad específica
         pacienteRepository.findByRut(rut).ifPresent(paciente -> {
             paciente.setNombre(dto.getNombre());
             paciente.setCorreo(dto.getCorreo());
             paciente.setTelefono(dto.getTelefono());
             pacienteRepository.save(paciente);
         });
-
+    
         odontologoRepository.findByRut(rut).ifPresent(od -> {
             od.setNombre(dto.getNombre());
             od.setCorreo(dto.getCorreo());
             od.setTelefono(dto.getTelefono());
             odontologoRepository.save(od);
         });
-
+    
         recepcionistaRepository.findByRut(rut).ifPresent(recep -> {
             recep.setNombre(dto.getNombre());
             recep.setCorreo(dto.getCorreo());
