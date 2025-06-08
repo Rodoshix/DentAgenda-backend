@@ -40,4 +40,6 @@ public interface CitaRepository extends JpaRepository<Cita, Long> {
     List<Cita> findByEstadoAndOdontologo(EstadoCita estado, Odontologo odontologo);
 
     List<Cita> findByOdontologoAndFechaHoraBetween(Odontologo odontologo, LocalDateTime desde, LocalDateTime hasta);
+
+    boolean existsByOdontologoIdAndFechaHoraAndIdNot(Long odontologoId, LocalDateTime fechaHora, Long excludeId);
 }

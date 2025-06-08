@@ -1,21 +1,31 @@
 package com.dentagenda.controller;
 
 import com.dentagenda.dto.AgendarCitaDTO;
-import com.dentagenda.dto.CitaHistorialDTO;
+import com.dentagenda.dto.CitaPacienteDTO;
 import com.dentagenda.dto.OdontologoDisponibilidadDTO;
-import com.dentagenda.dto.ReprogramarCitaDTO;
 import com.dentagenda.model.Cita;
 import com.dentagenda.model.EstadoCita;
+import com.dentagenda.model.Paciente;
+import com.dentagenda.model.RolUsuario;
+import com.dentagenda.model.Usuario;
+import com.dentagenda.repository.CitaRepository;
+import com.dentagenda.repository.PacienteRepository;
 import com.dentagenda.service.CitaService;
+import com.dentagenda.service.UsuarioCuentaService;
+
 import jakarta.validation.Valid;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,6 +41,15 @@ public class CitaController {
     @Autowired
     private CitaService citaService;
 
+    @Autowired
+    private CitaRepository citaRepository;
+
+    @Autowired
+    private PacienteRepository pacienteRepository;
+
+    @Autowired
+    private UsuarioCuentaService usuarioCuentaService;
+    
     @PostMapping("/agendar")
     @PreAuthorize("hasRole('PACIENTE')")
     public ResponseEntity<Cita> agendarCita(
@@ -46,16 +65,87 @@ public class CitaController {
         return ResponseEntity.ok(citaService.cancelarCita(id));
     }
 
-    @PutMapping("/{id}/reprogramar")
-    public ResponseEntity<Cita> reprogramarCita(@PathVariable Long id, @Valid @RequestBody ReprogramarCitaDTO dto) {
-        return ResponseEntity.ok(citaService.reprogramarCita(id, dto));
+    @PutMapping("/citas/{id}/reprogramar")
+    public ResponseEntity<?> reprogramarCita(
+        @PathVariable Long id,
+        @RequestBody Map<String, String> body
+    ) {
+        String nuevaFechaHoraStr = body.get("nuevaFechaHora");
+
+        if (nuevaFechaHoraStr == null || nuevaFechaHoraStr.isBlank()) {
+            return ResponseEntity.badRequest().body("Debe proporcionar una nueva fecha y hora");
+        }
+
+        try {
+            LocalDateTime nuevaFechaHora = LocalDateTime.parse(nuevaFechaHoraStr);
+
+            Cita cita = citaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+
+            if (!cita.getEstado().equals(EstadoCita.PENDIENTE)) {
+                return ResponseEntity.badRequest().body("Solo se pueden reprogramar citas pendientes");
+            }
+
+            // Impedir reprogramar el mismo día
+            LocalDate fechaActual = LocalDate.now();
+            LocalDate fechaCita = nuevaFechaHora.toLocalDate();
+
+            if (fechaCita.isEqual(fechaActual)) {
+                return ResponseEntity.badRequest().body("No se puede reprogramar una cita el mismo día");
+            }
+
+            if (citaRepository.existsByOdontologoIdAndFechaHoraAndIdNot(
+                cita.getOdontologo().getId(), nuevaFechaHora, cita.getId())) {
+                return ResponseEntity.badRequest().body("El odontólogo ya tiene una cita agendada en esa fecha y hora");
+            }
+
+            cita.setFechaHora(nuevaFechaHora);
+            citaRepository.save(cita);
+
+            return ResponseEntity.ok("Cita reprogramada correctamente");
+
+        } catch (DateTimeParseException e) {
+            return ResponseEntity.badRequest().body("Formato de fecha inválido. Se espera: YYYY-MM-DDTHH:mm:00");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error al reprogramar la cita");
+        }
     }
 
     @GetMapping("/mis-citas")
-    @PreAuthorize("hasRole('PACIENTE')")
-    public ResponseEntity<List<CitaHistorialDTO>> historialCitas(@AuthenticationPrincipal UserDetails userDetails) {
-        String rut = userDetails.getUsername(); 
-        return ResponseEntity.ok(citaService.obtenerHistorialCitasPaciente(rut));
+    public ResponseEntity<?> obtenerCitasDelPaciente(@AuthenticationPrincipal UserDetails userDetails) {
+        Usuario usuario = usuarioCuentaService.obtenerPerfil(userDetails);
+
+        if (!usuario.getRol().equals(RolUsuario.PACIENTE)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Acceso no autorizado");
+        }
+
+        Optional<Paciente> pacienteOpt = pacienteRepository.findByUsuario(usuario);
+
+        if (pacienteOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Paciente no encontrado");
+        }
+
+        Paciente paciente = pacienteOpt.get();
+
+        List<Cita> citas = citaRepository.findByPaciente(paciente);
+
+        List<CitaPacienteDTO> citasDTO = citas.stream().map(c -> {
+            CitaPacienteDTO dto = new CitaPacienteDTO();
+            dto.setId(c.getId());
+            dto.setFechaHora(c.getFechaHora());
+            dto.setEstado(c.getEstado().toString());
+
+            if (c.getOdontologo() != null) {
+                dto.setOdontologoId(c.getOdontologo().getId());
+                dto.setOdontologoNombre(c.getOdontologo().getNombre());
+            }
+
+            dto.setObservacion(c.getObservacion());
+
+            return dto;
+        }).toList();
+
+        return ResponseEntity.ok(citasDTO);
     }
 
     @GetMapping("/fecha")
