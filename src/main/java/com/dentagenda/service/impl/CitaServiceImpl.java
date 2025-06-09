@@ -1,6 +1,7 @@
 package com.dentagenda.service.impl;
 
 import com.dentagenda.dto.AgendarCitaDTO;
+import com.dentagenda.dto.CitaAgendaDTO;
 import com.dentagenda.dto.CitaCalendarioDTO;
 import com.dentagenda.dto.CitaDTO;
 import com.dentagenda.dto.CitaHistorialDTO;
@@ -449,5 +450,30 @@ public class CitaServiceImpl implements CitaService {
             inicio = inicio.plusHours(1);
         }
         return horas;
+    }
+
+    @Override
+    public List<CitaAgendaDTO> obtenerCitasDelOdontologoPorFecha(UserDetails userDetails, LocalDate fecha) {
+        String rutToken = userDetails.getUsername().replace("-", "").toLowerCase(); // RUT del token sin guion
+
+        // Buscar al odontólogo por RUT, sin importar guion o mayúsculas
+        Odontologo odontologo = odontologoRepository.findAll().stream()
+            .filter(o -> o.getRut().replace("-", "").equalsIgnoreCase(rutToken))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Odontólogo no encontrado (por RUT: " + rutToken + ")"));
+
+        LocalDateTime inicio = fecha.atTime(0, 0);
+        LocalDateTime fin = fecha.atTime(23, 59);
+
+        List<Cita> citas = citaRepository.findByOdontologoAndFechaHoraBetween(odontologo, inicio, fin);
+
+        return citas.stream()
+            .map(c -> new CitaAgendaDTO(
+                c.getId(),
+                c.getFechaHora().toLocalTime().toString(),
+                c.getPaciente().getNombre(),
+                c.getMotivo()
+            ))
+            .toList();
     }
 }

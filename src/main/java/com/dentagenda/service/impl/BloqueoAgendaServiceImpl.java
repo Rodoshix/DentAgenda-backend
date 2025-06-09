@@ -6,6 +6,10 @@ import com.dentagenda.model.Odontologo;
 import com.dentagenda.repository.BloqueoAgendaRepository;
 import com.dentagenda.repository.OdontologoRepository;
 import com.dentagenda.service.BloqueoAgendaService;
+
+import java.time.LocalDate;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,5 +35,13 @@ public class BloqueoAgendaServiceImpl implements BloqueoAgendaService {
         bloqueo.setOdontologo(odontologo);
 
         return bloqueoAgendaRepository.save(bloqueo);
+    }
+
+    @Override
+    public List<BloqueoAgenda> obtenerBloqueosPorFechaYRut(String rut, LocalDate fecha) {
+        Odontologo odontologo = odontologoRepository.findByRut(rut)
+            .orElseThrow(() -> new RuntimeException("Odontólogo no encontrado"));
+
+        return bloqueoAgendaRepository.findByOdontologoAndFecha(odontologo, fecha);
     }
 }

@@ -11,6 +11,7 @@ import com.dentagenda.security.UserDetailsServiceImpl;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -24,6 +25,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
     
 
@@ -95,6 +97,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/citas/paciente/**").hasAnyRole("PACIENTE", "RECEPCIONISTA")
                 .requestMatchers(HttpMethod.GET, "/api/citas/odontologo/**").hasAnyRole("ODONTOLOGO", "RECEPCIONISTA")
                 .requestMatchers(HttpMethod.GET, "/api/citas/futuras/odontologo").hasRole("ODONTOLOGO")
+                .requestMatchers(HttpMethod.GET, "/api/citas/odontologo").hasRole("ODONTOLOGO")
                     // Buscar citas por odontólogo, fecha y estado
                 .requestMatchers(HttpMethod.GET, "/api/citas/estado").hasAnyRole("ODONTOLOGO", "RECEPCIONISTA")
                 .requestMatchers(HttpMethod.GET, "/api/citas/fecha").hasAnyRole("ODONTOLOGO", "RECEPCIONISTA")

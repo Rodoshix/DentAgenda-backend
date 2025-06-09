@@ -1,6 +1,7 @@
 package com.dentagenda.controller;
 
 import com.dentagenda.dto.AgendarCitaDTO;
+import com.dentagenda.dto.CitaAgendaDTO;
 import com.dentagenda.dto.CitaDTO;
 import com.dentagenda.dto.CitaPacienteDTO;
 import com.dentagenda.dto.CitaRecepcionDTO;
@@ -244,6 +245,13 @@ public class CitaController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/odontologo")
+    @PreAuthorize("hasRole('ODONTOLOGO')")
+    public List<CitaAgendaDTO> obtenerCitasDelOdontologo(@AuthenticationPrincipal UserDetails userDetails, @RequestParam("fecha") String fechaStr) {
+        LocalDate fecha = LocalDate.parse(fechaStr);
+        return citaService.obtenerCitasDelOdontologoPorFecha(userDetails, fecha);
     }
 
 }
