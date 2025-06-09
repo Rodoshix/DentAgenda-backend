@@ -4,6 +4,7 @@ import com.dentagenda.dto.AgendarCitaDTO;
 import com.dentagenda.dto.CitaCalendarioDTO;
 import com.dentagenda.dto.CitaDTO;
 import com.dentagenda.dto.CitaHistorialDTO;
+import com.dentagenda.dto.HoraDisponibilidadDTO;
 import com.dentagenda.dto.OdontologoDisponibilidadDTO;
 import com.dentagenda.dto.ReprogramarCitaDTO;
 import com.dentagenda.model.BloqueoAgenda;
@@ -29,6 +30,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.Set;
 
@@ -407,4 +409,45 @@ public class CitaServiceImpl implements CitaService {
         citaRepository.save(cita);
     }
 
+    @Override
+    public List<HoraDisponibilidadDTO> consultarDisponibilidadPorOdontologoYFecha(Long odontologoId, LocalDate fecha) {
+        Odontologo odontologo = odontologoRepository.findById(odontologoId)
+                .orElseThrow(() -> new RuntimeException("Odontólogo no encontrado"));
+
+        LocalDateTime inicio = fecha.atTime(9, 0);
+        LocalDateTime fin = fecha.atTime(18, 0);
+
+        List<Cita> citas = citaRepository.findByOdontologoAndFechaHoraBetween(odontologo, inicio, fin);
+
+        List<String> todasLasHoras = generarHorasPosibles(); // método auxiliar
+        List<HoraDisponibilidadDTO> disponibilidad = new ArrayList<>();
+
+        for (String horaStr : todasLasHoras) {
+            LocalTime hora = LocalTime.parse(horaStr);
+            LocalDateTime fechaHora = LocalDateTime.of(fecha, hora);
+
+            Optional<Cita> cita = citas.stream()
+                    .filter(c -> c.getFechaHora().equals(fechaHora))
+                    .findFirst();
+
+            HoraDisponibilidadDTO dto = new HoraDisponibilidadDTO();
+            dto.setHora(horaStr);
+            dto.setPaciente(cita.map(c -> c.getPaciente().getNombre()).orElse(null)); // si hay cita, poner nombre
+            disponibilidad.add(dto);
+        }
+
+        return disponibilidad;
+    }
+
+    private List<String> generarHorasPosibles() {
+        List<String> horas = new ArrayList<>();
+        LocalTime inicio = LocalTime.of(9, 0);
+        LocalTime fin = LocalTime.of(18, 0);
+    
+        while (inicio.isBefore(fin)) {
+            horas.add(inicio.toString().substring(0, 5)); // HH:mm
+            inicio = inicio.plusHours(1);
+        }
+        return horas;
+    }
 }

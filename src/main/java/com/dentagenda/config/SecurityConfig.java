@@ -100,7 +100,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/citas/fecha").hasAnyRole("ODONTOLOGO", "RECEPCIONISTA")
                 .requestMatchers(HttpMethod.GET, "/api/citas/buscar-por-odontologo").hasAnyRole("ODONTOLOGO", "RECEPCIONISTA")
                 .requestMatchers(HttpMethod.GET, "/api/citas/disponibilidad").permitAll()
-
+                .requestMatchers(HttpMethod.GET, "/api/citas/disponibilidad/odontologo").hasAnyRole("RECEPCIONISTA", "ADMINISTRADOR")
+                
                 //Módulo: Odontólogos
                     // Registro y eliminación de odontólogos (solo ADMIN)
                 .requestMatchers(HttpMethod.POST, "/api/odontologos/registro").hasRole("ADMINISTRADOR")

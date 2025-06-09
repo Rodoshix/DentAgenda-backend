@@ -8,6 +8,7 @@ import com.dentagenda.dto.AgendarCitaDTO;
 import com.dentagenda.dto.CitaCalendarioDTO;
 import com.dentagenda.dto.CitaDTO;
 import com.dentagenda.dto.CitaHistorialDTO;
+import com.dentagenda.dto.HoraDisponibilidadDTO;
 import com.dentagenda.dto.OdontologoDisponibilidadDTO;
 import com.dentagenda.dto.ReprogramarCitaDTO;
 import com.dentagenda.model.Cita;
@@ -34,6 +35,6 @@ public interface CitaService {
     Cita agendarCita(AgendarCitaDTO dto, String rutPaciente);
     List<String> obtenerHorasDisponiblesPorOdontologo(Long odontologoId, LocalDate fecha);
     List<CitaHistorialDTO> obtenerHistorialCitasPaciente(String rutPaciente);
-
+    List<HoraDisponibilidadDTO> consultarDisponibilidadPorOdontologoYFecha(Long odontologoId, LocalDate fecha);
     void agendarCitaNoUsuario(CitaDTO dto);
 }

@@ -4,6 +4,7 @@ import com.dentagenda.dto.AgendarCitaDTO;
 import com.dentagenda.dto.CitaDTO;
 import com.dentagenda.dto.CitaPacienteDTO;
 import com.dentagenda.dto.CitaRecepcionDTO;
+import com.dentagenda.dto.HoraDisponibilidadDTO;
 import com.dentagenda.dto.OdontologoDisponibilidadDTO;
 import com.dentagenda.model.Cita;
 import com.dentagenda.model.EstadoCita;
@@ -196,6 +197,13 @@ public class CitaController {
     public List<OdontologoDisponibilidadDTO> disponibilidad(
             @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
         return citaService.consultarDisponibilidadPorFecha(fecha);
+    }
+
+    @GetMapping("/disponibilidad/odontologo")
+    public List<HoraDisponibilidadDTO> disponibilidadPorOdontologo(
+            @RequestParam Long odontologoId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde) {
+        return citaService.consultarDisponibilidadPorOdontologoYFecha(odontologoId, desde);
     }
 
     @PutMapping("/confirmar-asistencia/{id}")
