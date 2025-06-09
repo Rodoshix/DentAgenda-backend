@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.dentagenda.dto.AgendarCitaDTO;
 import com.dentagenda.dto.CitaCalendarioDTO;
+import com.dentagenda.dto.CitaDTO;
 import com.dentagenda.dto.CitaHistorialDTO;
 import com.dentagenda.dto.OdontologoDisponibilidadDTO;
 import com.dentagenda.dto.ReprogramarCitaDTO;
@@ -33,4 +34,6 @@ public interface CitaService {
     Cita agendarCita(AgendarCitaDTO dto, String rutPaciente);
     List<String> obtenerHorasDisponiblesPorOdontologo(Long odontologoId, LocalDate fecha);
     List<CitaHistorialDTO> obtenerHistorialCitasPaciente(String rutPaciente);
+
+    void agendarCitaNoUsuario(CitaDTO dto);
 }

@@ -118,6 +118,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/recepcionistas/registro").hasRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.GET, "/api/recepcionistas").hasRole("ADMINISTRADOR")
                 .requestMatchers(HttpMethod.DELETE, "/api/recepcionistas/eliminar/*").hasRole("ADMINISTRADOR")
+                .requestMatchers(HttpMethod.POST, "/api/citas/nousuario").hasRole("RECEPCIONISTA")
 
                 //Modulo: Historial Clínico (Tratamientos)
                     // Registrar tratamiento (solo odontólogo)

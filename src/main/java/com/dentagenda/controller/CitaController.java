@@ -1,7 +1,9 @@
 package com.dentagenda.controller;
 
 import com.dentagenda.dto.AgendarCitaDTO;
+import com.dentagenda.dto.CitaDTO;
 import com.dentagenda.dto.CitaPacienteDTO;
+import com.dentagenda.dto.CitaRecepcionDTO;
 import com.dentagenda.dto.OdontologoDisponibilidadDTO;
 import com.dentagenda.model.Cita;
 import com.dentagenda.model.EstadoCita;
@@ -201,4 +203,39 @@ public class CitaController {
         Cita cita = citaService.confirmarAsistencia(id);
         return ResponseEntity.ok(cita);
     }
+
+    @GetMapping("/paciente/{rut}")
+    @PreAuthorize("hasAnyRole('RECEPCIONISTA', 'ADMINISTRADOR')")
+    public ResponseEntity<List<CitaRecepcionDTO>> obtenerCitasPorPaciente(@PathVariable String rut) {
+        Optional<Paciente> pacienteOpt = pacienteRepository.findByRut(rut);
+        if (pacienteOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        List<Cita> citas = citaRepository.findByPaciente(pacienteOpt.get());
+
+        List<CitaRecepcionDTO> resultado = citas.stream().map(cita ->
+        new CitaRecepcionDTO(
+            cita.getId(),
+            cita.getFechaHora(),
+            cita.getMotivo(),
+            cita.getEstado(),
+            cita.getOdontologo().getNombre()
+        )
+    ).toList();
+
+        return ResponseEntity.ok(resultado);
+    }
+
+    @PostMapping("/nousuario")
+    @PreAuthorize("hasRole('RECEPCIONISTA')")
+    public ResponseEntity<?> agendarCitaSinUsuario(@RequestBody CitaDTO dto) {
+        try {
+            citaService.agendarCitaNoUsuario(dto);
+            return ResponseEntity.ok("Cita registrada exitosamente");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 }

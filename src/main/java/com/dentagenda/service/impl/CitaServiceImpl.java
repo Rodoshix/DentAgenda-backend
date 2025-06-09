@@ -2,6 +2,7 @@ package com.dentagenda.service.impl;
 
 import com.dentagenda.dto.AgendarCitaDTO;
 import com.dentagenda.dto.CitaCalendarioDTO;
+import com.dentagenda.dto.CitaDTO;
 import com.dentagenda.dto.CitaHistorialDTO;
 import com.dentagenda.dto.OdontologoDisponibilidadDTO;
 import com.dentagenda.dto.ReprogramarCitaDTO;
@@ -375,6 +376,35 @@ public class CitaServiceImpl implements CitaService {
 
             return dto;
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    public void agendarCitaNoUsuario(CitaDTO dto) {
+        // Validar campos
+        if (dto.getPacienteId() == null || dto.getOdontologoId() == null || dto.getFechaHora() == null || dto.getMotivo() == null) {
+            throw new IllegalArgumentException("Faltan datos para registrar la cita.");
+        }
+
+        // Convertir fechaHora a LocalDateTime
+        LocalDateTime fechaHora = LocalDateTime.parse(dto.getFechaHora());
+
+        // Validar disponibilidad (si ya existe una cita a esa hora)
+        boolean ocupada = citaRepository.existsByOdontologo_IdAndFechaHora(dto.getOdontologoId(), fechaHora);
+        if (ocupada) {
+            throw new IllegalArgumentException("El horario ya está ocupado.");
+        }
+
+        // Crear y guardar la cita
+        Cita cita = new Cita();
+        cita.setPaciente(pacienteRepository.findById(dto.getPacienteId())
+            .orElseThrow(() -> new IllegalArgumentException("Paciente no encontrado")));
+        cita.setOdontologo(odontologoRepository.findById(dto.getOdontologoId())
+            .orElseThrow(() -> new IllegalArgumentException("Odontólogo no encontrado")));
+        cita.setFechaHora(fechaHora);
+        cita.setMotivo(dto.getMotivo());
+        cita.setEstado(EstadoCita.PENDIENTE);
+
+        citaRepository.save(cita);
     }
 
 }
