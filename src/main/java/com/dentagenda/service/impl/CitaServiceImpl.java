@@ -472,8 +472,10 @@ public class CitaServiceImpl implements CitaService {
                 c.getId(),
                 c.getFechaHora().toLocalTime().toString(),
                 c.getPaciente().getNombre(),
+                c.getPaciente().getRut(),
                 c.getMotivo(),
-                c.getEstado().name()
+                c.getEstado().name(),
+                tratamientoRepository.existsByCita(c)
             ))
             .toList();
     }
