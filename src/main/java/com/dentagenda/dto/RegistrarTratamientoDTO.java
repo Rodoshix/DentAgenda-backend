@@ -7,4 +7,5 @@ public class RegistrarTratamientoDTO {
     private String diagnostico;
     private String procedimiento;
     private Long idCita;
+    private String observacion;
 }

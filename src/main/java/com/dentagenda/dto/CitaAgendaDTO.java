@@ -10,4 +10,5 @@ public class CitaAgendaDTO {
     private String hora;
     private String pacienteNombre;
     private String motivo;
+    private String estado;
 }

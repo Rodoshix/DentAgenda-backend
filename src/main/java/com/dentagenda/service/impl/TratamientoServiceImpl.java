@@ -27,41 +27,46 @@ public class TratamientoServiceImpl implements TratamientoService {
     private CitaRepository citaRepository;
 
     @Override
-    public Tratamiento registrarTratamiento(RegistrarTratamientoDTO dto) {
-        Cita cita = citaRepository.findById(dto.getIdCita())
-                .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
-    
-        // Validar que la cita no tenga tratamiento
-        if (tratamientoRepository.existsByCita(cita)) {
-            throw new RuntimeException("Ya existe un tratamiento registrado para esta cita.");
-        }
-    
-        // Validar estado de la cita
-        switch (cita.getEstado()) {
-            case CANCELADA -> throw new RuntimeException("No se puede registrar un tratamiento para una cita cancelada.");
-            case PENDIENTE -> throw new RuntimeException("La cita aún no ha sido confirmada.");
-            default -> {} // CONFIRMADA o ATENDIDA
-        }
-    
-        // Validar odontólogo autenticado
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String rutAuth = auth.getName(); // El rut viene del token
-        String rutOdontologo = cita.getOdontologo().getRut();
-    
-        if (!rutAuth.equals(rutOdontologo)) {
-            throw new RuntimeException("Solo el odontólogo que atendió la cita puede registrar el tratamiento.");
-        }
-    
-        Tratamiento t = new Tratamiento();
-        t.setDiagnostico(dto.getDiagnostico());
-        t.setProcedimiento(dto.getProcedimiento());
-        t.setFecha(LocalDate.now());
-        t.setCita(cita);
-        t.setPaciente(cita.getPaciente());
-        t.setOdontologo(cita.getOdontologo());
-    
-        return tratamientoRepository.save(t);
+public Tratamiento registrarTratamiento(RegistrarTratamientoDTO dto) {
+    Cita cita = citaRepository.findById(dto.getIdCita())
+            .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+
+    // Validar que la cita no tenga tratamiento
+    if (tratamientoRepository.existsByCita(cita)) {
+        throw new RuntimeException("Ya existe un tratamiento registrado para esta cita.");
     }
+
+    // Validar estado de la cita
+    switch (cita.getEstado()) {
+        case CANCELADA -> throw new RuntimeException("No se puede registrar un tratamiento para una cita cancelada.");
+        case PENDIENTE -> throw new RuntimeException("La cita aún no ha sido confirmada.");
+        default -> {} // CONFIRMADA o ATENDIDA
+    }
+
+    // Validar odontólogo autenticado
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    String rutAuth = auth.getName(); // El rut viene del token
+    String rutOdontologo = cita.getOdontologo().getRut();
+
+    if (!rutAuth.equals(rutOdontologo)) {
+        throw new RuntimeException("Solo el odontólogo que atendió la cita puede registrar el tratamiento.");
+    }
+
+    // Asignar observación
+    cita.setObservacion(dto.getObservacion());
+    citaRepository.save(cita); // ✅ Solo una vez
+
+    // Crear tratamiento
+    Tratamiento t = new Tratamiento();
+    t.setDiagnostico(dto.getDiagnostico());
+    t.setProcedimiento(dto.getProcedimiento());
+    t.setFecha(LocalDate.now());
+    t.setCita(cita);
+    t.setPaciente(cita.getPaciente());
+    t.setOdontologo(cita.getOdontologo());
+
+    return tratamientoRepository.save(t);
+}
 
     @Override
     public List<Tratamiento> obtenerTratamientosPorRutPaciente(String rut, UserDetails userDetails) {
