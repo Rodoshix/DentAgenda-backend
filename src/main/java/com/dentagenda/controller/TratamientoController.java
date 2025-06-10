@@ -1,6 +1,7 @@
 package com.dentagenda.controller;
 
 import com.dentagenda.dto.RegistrarTratamientoDTO;
+import com.dentagenda.dto.TratamientoDTO;
 import com.dentagenda.model.Tratamiento;
 import com.dentagenda.service.TratamientoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +25,10 @@ public class TratamientoController {
     }
 
     @GetMapping("/paciente/{rut}")
-    public List<Tratamiento> listarPorPaciente(
-            @PathVariable String rut,
-            @AuthenticationPrincipal UserDetails userDetails) {
+    public List<TratamientoDTO> historialPorRutPaciente(
+        @PathVariable String rut,
+        @AuthenticationPrincipal UserDetails userDetails
+    ) {
         return tratamientoService.obtenerTratamientosPorRutPaciente(rut, userDetails);
     }
 
